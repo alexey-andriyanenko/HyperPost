@@ -4,6 +4,7 @@ using HyperPost.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HyperPost.Migrations
 {
     [DbContext(typeof(HyperPostDbContext))]
-    partial class HyperPostDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230508153722_RoleStatusCategorySeeding")]
+    partial class RoleStatusCategorySeeding
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -255,38 +258,6 @@ namespace HyperPost.Migrations
                         .IsUnique();
 
                     b.ToTable("User");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Email = "admin@example.com",
-                            FirstName = "Admin",
-                            LastName = "User",
-                            Password = "root",
-                            PhoneNumber = "111111",
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Email = "manager@example.com",
-                            FirstName = "Manager",
-                            LastName = "User",
-                            Password = "manager_password",
-                            PhoneNumber = "222222",
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Email = "client@example.com",
-                            FirstName = "Client",
-                            LastName = "User",
-                            Password = "client_password",
-                            PhoneNumber = "333333",
-                            RoleId = 3
-                        });
                 });
 
             modelBuilder.Entity("HyperPost.Models.UserRoleModel", b =>

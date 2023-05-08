@@ -23,7 +23,7 @@ namespace MyStore.Tests
                 services.Remove(dbContextDescriptor);
                 services.AddDbContext<HyperPostDbContext>(options =>
                 {
-                    options.UseSqlServer(configuration.GetConnectionString("MyStoreConnection"));
+                    options.UseSqlServer(configuration.GetConnectionString("HyperPost"));
                 });
             });
 

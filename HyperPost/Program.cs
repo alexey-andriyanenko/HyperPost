@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Builder;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using HyperPost.Extensions;
 
 namespace HyperPost
 {
@@ -17,9 +18,13 @@ namespace HyperPost
                 options.UseSqlServer(builder.Configuration.GetConnectionString("HyperPost"));
             });
 
+            builder.Services.AddHyperPostAuthentication();
+            builder.Services.AddHttpContextAccessor();
+            builder.Services.AddControllers();
+
             var app = builder.Build();
 
-            app.MapGet("/", () => "Hello World!");
+            app.MapControllers();
 
             app.Run();
         }
