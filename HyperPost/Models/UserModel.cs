@@ -21,7 +21,7 @@ namespace HyperPost.Models
 
         [Column(TypeName = "nvarchar(30)")]
         [MaxLength(30)]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         public int RoleId { get; set; }
 
