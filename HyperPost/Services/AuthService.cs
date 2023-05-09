@@ -1,9 +1,4 @@
-﻿using System.Collections.Generic;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System;
-using System.Text;
-using HyperPost.Models;
+﻿using System.Text;
 using Microsoft.IdentityModel.Tokens;
 
 namespace HyperPost.Services

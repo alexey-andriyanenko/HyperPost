@@ -2,6 +2,8 @@
 using HyperPost.DTO.User;
 using HyperPost.Models;
 using HyperPost.Services;
+using HyperPost.Shared;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -9,6 +11,7 @@ using Microsoft.IdentityModel.Tokens;
 using System;
 using System.Collections.Generic;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Threading.Tasks;
 
@@ -40,13 +43,16 @@ namespace HyperPost.Controllers
             return Ok(await _GetUserLoginResponse(user));
         }
 
+        [Authorize(Policy = "admin, manager")]
         [HttpPost]
         public async Task<ActionResult<UserResponse>> CreateUser([FromBody] UserRequest request)
         {
-            Console.WriteLine($"RoleId: {request.RoleId}");
+            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
 
-            var role = await _dbContext.Roles.FindAsync(request.RoleId);
-            if (role == null) return BadRequest("Invalid RoleId");
+            if (role != "admin" && (request.RoleId == UserShared.ADMIN_ROLE_ID || request.RoleId == UserShared.MANAGER_ROLE_ID))
+            {
+                return Forbid();
+            }
 
             var user = new UserModel
             {
@@ -63,7 +69,6 @@ namespace HyperPost.Controllers
 
             return Ok();
         }
-
 
         private UserResponse _GetUserResponse(UserModel model)
         {
