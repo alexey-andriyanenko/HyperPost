@@ -32,8 +32,18 @@ namespace HyperPost.Extensions
 
                 options.AddPolicy("admin, manager", policy =>
                 {
-                    policy.RequireClaim("Role", "admin", "manager");
-                    policy.RequireClaim("RoleId", UserRolesEnum.Admin.ToString(), UserRolesEnum.Manager.ToString());
+
+                    policy.RequireAssertion(context =>
+                    {
+                        var isAdmin = context.User.HasClaim(c => c.Type == "Role" && c.Value == "admin");
+                        var isAdminId = context.User.HasClaim(c => c.Type == "RoleId" && int.Parse(c.Value) == (int)UserRolesEnum.Admin);
+
+                        var isManager = context.User.HasClaim(c => c.Type == "Role" && c.Value == "manager");
+                        var isManagerId = context.User.HasClaim(c => c.Type == "RoleId" && int.Parse(c.Value) == (int)UserRolesEnum.Manager);
+
+                        return (isAdmin && isAdminId) || (isManager && isManagerId);
+                    });
+
                 });
 
                 options.AddPolicy("client", policy =>

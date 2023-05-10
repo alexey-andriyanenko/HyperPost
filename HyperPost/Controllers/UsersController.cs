@@ -27,7 +27,8 @@ namespace HyperPost.Controllers
             _dbContext = dbContext;
         }
 
-        public async Task<ActionResult<UserLoginResponse>> LoginViaEmail(UserLoginViaEmailRequest request)
+        [HttpPost("login/email")]
+        public async Task<ActionResult<UserLoginResponse>> LoginViaEmail([FromBody] UserLoginViaEmailRequest request)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email && u.Password == request.Password);
             if (user == null) return Unauthorized();
@@ -35,7 +36,8 @@ namespace HyperPost.Controllers
             return Ok(await _GetUserLoginResponse(user));
         }
 
-        public async Task<ActionResult<UserLoginResponse>> LoginViaPhoneNumber(UserLoginViaPhoneNumberRequest request)
+        [HttpPost("login/phone")]
+        public async Task<ActionResult<UserLoginResponse>> LoginViaPhoneNumber([FromBody] UserLoginViaPhoneNumberRequest request)
         {
             var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber && u.Password == request.Password);
             if (user == null) return Unauthorized();
@@ -49,7 +51,7 @@ namespace HyperPost.Controllers
         {
             var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
 
-            if (role != "admin" && (request.RoleId == UserShared.ADMIN_ROLE_ID || request.RoleId == UserShared.MANAGER_ROLE_ID))
+            if (role != "admin" && (request.RoleId == (int)UserRolesEnum.Admin || request.RoleId == (int)UserRolesEnum.Manager))
             {
                 return Forbid();
             }

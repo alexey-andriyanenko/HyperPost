@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using HyperPost.DB;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
-namespace MyStore.Tests
+namespace HyperPost.Tests
 {
     public class HyperPostTestFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
     {
