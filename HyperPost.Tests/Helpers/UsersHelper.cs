@@ -31,7 +31,7 @@ namespace HyperPost.Tests.Helpers
             return content;
         }
 
-        private static UserModel _GetUserModel(UserRolesEnum role)
+        public static UserModel GetUserModel(UserRolesEnum role)
         {
             var user = new UserModel();
 
@@ -73,7 +73,7 @@ namespace HyperPost.Tests.Helpers
 
         private static UserLoginViaPhoneNumberRequest _GetUserLoginViaPhoneNumbertData(UserRolesEnum role)
         {
-            var user = _GetUserModel(role);
+            var user = GetUserModel(role);
             var login = new UserLoginViaPhoneNumberRequest
             {
                 PhoneNumber = user.PhoneNumber,
@@ -85,7 +85,7 @@ namespace HyperPost.Tests.Helpers
 
         private static UserLoginViaEmailRequest _GetUserLoginViaEmailData(UserRolesEnum role)
         {
-            var user = _GetUserModel(role);
+            var user = GetUserModel(role);
             var login = new UserLoginViaEmailRequest
             {
                 Email = user.Email,

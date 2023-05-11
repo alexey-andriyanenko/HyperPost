@@ -43,7 +43,7 @@ namespace HyperPost.Migrations
                     b.HasIndex("Number")
                         .IsUnique();
 
-                    b.ToTable("Department");
+                    b.ToTable("Department", (string)null);
 
                     b.HasData(
                         new
@@ -123,7 +123,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PackageCategory");
+                    b.ToTable("PackageCategory", (string)null);
 
                     b.HasData(
                         new
@@ -233,7 +233,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Package");
+                    b.ToTable("Package", (string)null);
                 });
 
             modelBuilder.Entity("HyperPost.Models.PackageStatusModel", b =>
@@ -251,7 +251,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PackageStatus");
+                    b.ToTable("PackageStatus", (string)null);
 
                     b.HasData(
                         new
@@ -319,7 +319,7 @@ namespace HyperPost.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("User");
+                    b.ToTable("User", (string)null);
 
                     b.HasData(
                         new
@@ -369,7 +369,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserRole");
+                    b.ToTable("UserRole", (string)null);
 
                     b.HasData(
                         new

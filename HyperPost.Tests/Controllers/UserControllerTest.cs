@@ -215,5 +215,278 @@ namespace HyperPost.Tests.Controllers
                 db.SaveChanges();
             }
         }
+
+        [Fact]
+        public async Task POST_CreateUserWithExistingEmail_ReturnsBadRequest()
+        {
+            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Client_V2",
+                LastName = "User",
+                Email = existingClient.Email,
+                PhoneNumber = "12345678",
+                Password = "client_v2",
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task POST_CreateUserWithExistingPhoneNumber_ReturnsBadRequest()
+        {
+            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Client_V2",
+                LastName = "User",
+                Email = "client_v2@example.com",
+                PhoneNumber = existingClient.PhoneNumber,
+                Password = "client_v2",
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task POST_CreateUserWithFirstNameMoreThan30Characters_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "lllllllllllllllllllllllllllllll",
+                LastName = "User",
+                Email = "client_v2@example.com",
+                PhoneNumber = "23142512",
+                Password = "client_v2",
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task POST_CreateUserWithLastNameMoreThan30Characters_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Client_v2",
+                LastName = "lllllllllllllllllllllllllllllll",
+                Email = "client_v2@example.com",
+                PhoneNumber = "23142512",
+                Password = "client_v2",
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task POST_CreateUserWithEmailMoreThan30Characters_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Client_v2",
+                LastName = "User",
+                Email = "lllllllllllllllllllllllllllllll@mail.com",
+                PhoneNumber = "23142512",
+                Password = "client_v2",
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task POST_CreateUserWithInvalidEmail_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Client_v2",
+                LastName = "User",
+                Email = "client_v2",
+                PhoneNumber = "23142512",
+                Password = "client_v2",
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task POST_CreateUserWithPhoneNumberMoreThan20Characters_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Client_v2",
+                LastName = "User",
+                Email = "email@mail.com",
+                PhoneNumber = "123456789012345678901",
+                Password = "client_v2",
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task POST_CreateUserWithInvalidUserRequest_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = null,
+                LastName = null,
+                Email = null,
+                PhoneNumber = null,
+                Password = null,
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        // check if can create user without email
+        [Fact]
+        public async Task POST_CreateUserWithoutEmail_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Client_v2",
+                LastName = "User",
+                Email = null,
+                PhoneNumber = "23142512",
+                Password = "client_v2",
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var userToDelete = context.Users.Single(u => u.PhoneNumber == "23142512");
+
+                context.Users.Remove(userToDelete);
+                await context.SaveChangesAsync();
+            }
+        }
+
+        // check if can create client user without password
+        [Fact]
+        public async Task POST_CreateClientUserWithoutPassword_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Client_v2",
+                LastName = "User",
+                Email = "example@.com",
+                PhoneNumber = "23142512",
+                Password = null,
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var userToDelete = context.Users.Single(u => u.PhoneNumber == "23142512");
+                context.Users.Remove(userToDelete);
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

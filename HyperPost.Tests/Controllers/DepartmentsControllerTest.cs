@@ -129,5 +129,26 @@ namespace HyperPost.Tests.Controllers
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
+
+        [Fact]
+        public async Task POST_ManagerCreatesDepartmentWithInvalidDepartmentRequest_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var department = new DepartmentRequest
+            {
+                Number = 98,
+                FullAddress = null
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(department);
+            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
     }
 }

@@ -1,4 +1,7 @@
-﻿using HyperPost.DB;
+﻿using EntityFramework.Exceptions.Common;
+using FluentValidation;
+using FluentValidation.Validators;
+using HyperPost.DB;
 using HyperPost.DTO.User;
 using HyperPost.Models;
 using HyperPost.Services;
@@ -21,10 +24,12 @@ namespace HyperPost.Controllers
     public class UsersController : Controller
     {
         private readonly HyperPostDbContext _dbContext;
+        private readonly IValidator<UserRequest> _userRequestValidator;
 
-        public UsersController(HyperPostDbContext dbContext)
+        public UsersController(HyperPostDbContext dbContext, IValidator<UserRequest> userRequestValidator)
         {
             _dbContext = dbContext;
+            _userRequestValidator = userRequestValidator;
         }
 
         [HttpPost("login/email")]
@@ -56,6 +61,9 @@ namespace HyperPost.Controllers
                 return Forbid();
             }
 
+            var validationResult = await _userRequestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)  return BadRequest(validationResult.Errors);
+
             var user = new UserModel
             {
                 RoleId = request.RoleId,
@@ -66,8 +74,19 @@ namespace HyperPost.Controllers
                 Password = request.Password,
             };
 
-            await _dbContext.Users.AddAsync(user);
-            await _dbContext.SaveChangesAsync();
+            try
+            {
+                await _dbContext.Users.AddAsync(user);
+                await _dbContext.SaveChangesAsync();
+            } 
+            catch (UniqueConstraintException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MaxLengthExceededException ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             return Ok();
         }

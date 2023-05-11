@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using EntityFramework.Exceptions.Common;
+using FluentValidation;
 
 namespace HyperPost.Controllers
 {
@@ -12,16 +13,21 @@ namespace HyperPost.Controllers
     public class DepartmentsController : Controller
     {
         private readonly HyperPostDbContext _dbContext;
+        private readonly IValidator<DepartmentRequest> _departmentRequestValidator;
 
-        public DepartmentsController(HyperPostDbContext dbContext)
+        public DepartmentsController(HyperPostDbContext dbContext, IValidator<DepartmentRequest> departmentRequestValidator)
         {
             _dbContext = dbContext;
+            _departmentRequestValidator = departmentRequestValidator;
         }
 
         [Authorize(Policy = "admin, manager")]
         [HttpPost]
         public async Task<ActionResult<DepartmentResponse>> CreateDepartment([FromBody] DepartmentRequest request)
         {
+            var validationResult = await _departmentRequestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid) return BadRequest(validationResult.Errors);
+
             var model = new DepartmentModel
             {
                 Number = request.Number,

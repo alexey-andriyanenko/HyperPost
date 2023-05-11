@@ -5,6 +5,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HyperPost.Extensions;
 
+
 namespace HyperPost
 {
     public class Program
@@ -21,6 +22,7 @@ namespace HyperPost
             builder.Services.AddHyperPostAuthentication();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers();
+            builder.Services.AddHyperPostValidation();
 
             var app = builder.Build();
 
