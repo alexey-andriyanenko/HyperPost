@@ -1,4 +1,5 @@
-﻿using HyperPost.Models;
+﻿using EntityFramework.Exceptions.SqlServer;
+using HyperPost.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace HyperPost.DB
@@ -12,6 +13,12 @@ namespace HyperPost.DB
         public DbSet<PackageCategoryModel> PackageCategoties { get; set; }
         public DbSet<PackageStatusModel> PackageStatuses { get; set; }
         public HyperPostDbContext(DbContextOptions<HyperPostDbContext> options) : base(options) { }
+
+        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        {
+            base.OnConfiguring(optionsBuilder);
+            optionsBuilder.UseExceptionProcessor();
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
