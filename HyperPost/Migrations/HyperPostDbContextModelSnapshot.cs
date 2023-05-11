@@ -40,7 +40,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Department");
+                    b.ToTable("Department", (string)null);
                 });
 
             modelBuilder.Entity("HyperPost.Models.PackageCategoryModel", b =>
@@ -58,64 +58,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PackageCategory");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "Food"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "Money"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "Medicaments"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "Accumulators"
-                        },
-                        new
-                        {
-                            Id = 5,
-                            Name = "Sports Products"
-                        },
-                        new
-                        {
-                            Id = 6,
-                            Name = "Clothes"
-                        },
-                        new
-                        {
-                            Id = 7,
-                            Name = "Shoes"
-                        },
-                        new
-                        {
-                            Id = 8,
-                            Name = "Documents"
-                        },
-                        new
-                        {
-                            Id = 9,
-                            Name = "Books"
-                        },
-                        new
-                        {
-                            Id = 10,
-                            Name = "Computers"
-                        },
-                        new
-                        {
-                            Id = 11,
-                            Name = "Accessories"
-                        });
+                    b.ToTable("PackageCategory", (string)null);
                 });
 
             modelBuilder.Entity("HyperPost.Models.PackageModel", b =>
@@ -168,7 +111,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("Package");
+                    b.ToTable("Package", (string)null);
                 });
 
             modelBuilder.Entity("HyperPost.Models.PackageStatusModel", b =>
@@ -186,29 +129,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("PackageStatus");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "created"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "sent"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "arrived"
-                        },
-                        new
-                        {
-                            Id = 4,
-                            Name = "received"
-                        });
+                    b.ToTable("PackageStatus", (string)null);
                 });
 
             modelBuilder.Entity("HyperPost.Models.UserModel", b =>
@@ -254,39 +175,7 @@ namespace HyperPost.Migrations
                     b.HasIndex("PhoneNumber")
                         .IsUnique();
 
-                    b.ToTable("User");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Email = "admin@example.com",
-                            FirstName = "Admin",
-                            LastName = "User",
-                            Password = "root",
-                            PhoneNumber = "111111",
-                            RoleId = 1
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Email = "manager@example.com",
-                            FirstName = "Manager",
-                            LastName = "User",
-                            Password = "manager_password",
-                            PhoneNumber = "222222",
-                            RoleId = 2
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Email = "client@example.com",
-                            FirstName = "Client",
-                            LastName = "User",
-                            Password = "client_password",
-                            PhoneNumber = "333333",
-                            RoleId = 3
-                        });
+                    b.ToTable("User", (string)null);
                 });
 
             modelBuilder.Entity("HyperPost.Models.UserRoleModel", b =>
@@ -304,24 +193,7 @@ namespace HyperPost.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("UserRole");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = 1,
-                            Name = "admin"
-                        },
-                        new
-                        {
-                            Id = 2,
-                            Name = "manager"
-                        },
-                        new
-                        {
-                            Id = 3,
-                            Name = "client"
-                        });
+                    b.ToTable("UserRole", (string)null);
                 });
 #pragma warning restore 612, 618
         }
