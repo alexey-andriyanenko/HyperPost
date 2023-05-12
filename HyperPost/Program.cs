@@ -5,7 +5,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using HyperPost.Extensions;
 
-
 namespace HyperPost
 {
     public class Program
@@ -16,7 +15,7 @@ namespace HyperPost
 
             builder.Services.AddDbContext<HyperPostDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("HyperPost"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("HyperPostTests"));
             });
 
             builder.Services.AddHyperPostAuthentication();
