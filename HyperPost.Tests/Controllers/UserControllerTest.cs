@@ -14,7 +14,8 @@ namespace HyperPost.Tests.Controllers
     {
         private readonly HyperPostTestFactory<Program> _factory;
         private readonly HttpClient _client;
-        public UserControllerTest(HyperPostTestFactory<Program> factory) 
+
+        public UserControllerTest(HyperPostTestFactory<Program> factory)
         {
             _factory = factory;
             _client = factory.CreateClient();
@@ -39,7 +40,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -49,7 +53,9 @@ namespace HyperPost.Tests.Controllers
             using (var scope = _factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
-                var model = db.Users.Single(u => u.PhoneNumber == "1234567890" && u.Email == "admin_v2@example.com");
+                var model = db.Users.Single(
+                    u => u.PhoneNumber == "1234567890" && u.Email == "admin_v2@example.com"
+                );
 
                 db.Users.Remove(model);
                 db.SaveChanges();
@@ -75,7 +81,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -85,7 +94,9 @@ namespace HyperPost.Tests.Controllers
             using (var scope = _factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
-                var model = db.Users.Single(u => u.PhoneNumber == "1234567890" && u.Email == "manager_v2@example.com");
+                var model = db.Users.Single(
+                    u => u.PhoneNumber == "1234567890" && u.Email == "manager_v2@example.com"
+                );
 
                 db.Users.Remove(model);
                 db.SaveChanges();
@@ -111,7 +122,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -121,7 +135,9 @@ namespace HyperPost.Tests.Controllers
             using (var scope = _factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
-                var model = db.Users.Single(u => u.PhoneNumber == "1234567890" && u.Email == "client_v2@example.com");
+                var model = db.Users.Single(
+                    u => u.PhoneNumber == "1234567890" && u.Email == "client_v2@example.com"
+                );
 
                 db.Users.Remove(model);
                 db.SaveChanges();
@@ -147,7 +163,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -173,7 +192,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -199,7 +221,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -209,7 +234,9 @@ namespace HyperPost.Tests.Controllers
             using (var scope = _factory.Services.CreateScope())
             {
                 var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
-                var model = db.Users.Single(u => u.PhoneNumber == "1234567890" && u.Email == "client_v2@example.com");
+                var model = db.Users.Single(
+                    u => u.PhoneNumber == "1234567890" && u.Email == "client_v2@example.com"
+                );
 
                 db.Users.Remove(model);
                 db.SaveChanges();
@@ -235,7 +262,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -261,7 +291,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -286,7 +319,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -311,7 +347,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -336,7 +375,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -361,7 +403,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -386,7 +431,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -411,14 +459,16 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        // check if can create user without email
         [Fact]
         public async Task POST_CreateUserWithoutEmail_ReturnsBadRequest()
         {
@@ -437,7 +487,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -454,7 +507,6 @@ namespace HyperPost.Tests.Controllers
             }
         }
 
-        // check if can create client user without password
         [Fact]
         public async Task POST_CreateClientUserWithoutPassword_ReturnsBadRequest()
         {
@@ -473,7 +525,10 @@ namespace HyperPost.Tests.Controllers
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(user);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/users");
 
             var response = await _client.SendAsync(message);
@@ -487,6 +542,63 @@ namespace HyperPost.Tests.Controllers
                 context.Users.Remove(userToDelete);
                 await context.SaveChangesAsync();
             }
+        }
+
+        [Fact]
+        public async Task POST_CreateAdminUserWithoutPassword_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Admin,
+                FirstName = "Admin_v2",
+                LastName = "User",
+                Email = "example@.com",
+                PhoneNumber = "23142512",
+                Password = null,
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        // check if can create manager without password
+        [Fact]
+        public async Task POST_CreateManagerUserWithoutPassword_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = new UserRequest
+            {
+                RoleId = (int)UserRolesEnum.Manager,
+                FirstName = "Manager_v2",
+                LastName = "User",
+                Email = "example@.com",
+                PhoneNumber = "23142512",
+                Password = null,
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(user);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri("http://localhost:8000/users");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
     }
 }
