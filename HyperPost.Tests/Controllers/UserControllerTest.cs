@@ -572,7 +572,6 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
         }
 
-        // check if can create manager without password
         [Fact]
         public async Task POST_CreateManagerUserWithoutPassword_ReturnsBadRequest()
         {
@@ -599,6 +598,95 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AdminGetsUserById_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+
+            message.RequestUri = new Uri($"http://localhost:8000/users/{existingClient.Id}");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var user = await response.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.Equal(existingClient.Id, user.Id);
+            Assert.Equal(existingClient.RoleId, user.RoleId);
+            Assert.Equal(existingClient.FirstName, user.FirstName);
+            Assert.Equal(existingClient.LastName, user.LastName);
+            Assert.Equal(existingClient.Email, user.Email);
+            Assert.Equal(existingClient.PhoneNumber, user.PhoneNumber);
+        }
+
+        [Fact]
+        public async Task GET_ManagerGetsUserById_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri($"http://localhost:8000/users/{existingClient.Id}");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var user = await response.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.Equal(existingClient.Id, user.Id);
+            Assert.Equal(existingClient.RoleId, user.RoleId);
+            Assert.Equal(existingClient.FirstName, user.FirstName);
+            Assert.Equal(existingClient.LastName, user.LastName);
+            Assert.Equal(existingClient.Email, user.Email);
+            Assert.Equal(existingClient.PhoneNumber, user.PhoneNumber);
+        }
+
+        [Fact]
+        public async Task GET_ClientGetsUserById_ReturnsForbidden()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+            var message = new HttpRequestMessage();
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri($"http://localhost:8000/users/{existingClient.Id}");
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AdminGetsUserById_ReturnsNotFound()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri($"http://localhost:8000/users/0");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
     }
 }

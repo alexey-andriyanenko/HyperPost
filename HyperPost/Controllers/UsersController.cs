@@ -26,26 +26,39 @@ namespace HyperPost.Controllers
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<UserRequest> _userRequestValidator;
 
-        public UsersController(HyperPostDbContext dbContext, IValidator<UserRequest> userRequestValidator)
+        public UsersController(
+            HyperPostDbContext dbContext,
+            IValidator<UserRequest> userRequestValidator
+        )
         {
             _dbContext = dbContext;
             _userRequestValidator = userRequestValidator;
         }
 
         [HttpPost("login/email")]
-        public async Task<ActionResult<UserLoginResponse>> LoginViaEmail([FromBody] UserLoginViaEmailRequest request)
+        public async Task<ActionResult<UserLoginResponse>> LoginViaEmail(
+            [FromBody] UserLoginViaEmailRequest request
+        )
         {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email && u.Password == request.Password);
-            if (user == null) return Unauthorized();
+            var user = await _dbContext.Users.FirstOrDefaultAsync(
+                u => u.Email == request.Email && u.Password == request.Password
+            );
+            if (user == null)
+                return Unauthorized();
 
             return Ok(await _GetUserLoginResponse(user));
         }
 
         [HttpPost("login/phone")]
-        public async Task<ActionResult<UserLoginResponse>> LoginViaPhoneNumber([FromBody] UserLoginViaPhoneNumberRequest request)
+        public async Task<ActionResult<UserLoginResponse>> LoginViaPhoneNumber(
+            [FromBody] UserLoginViaPhoneNumberRequest request
+        )
         {
-            var user = await _dbContext.Users.FirstOrDefaultAsync(u => u.PhoneNumber == request.PhoneNumber && u.Password == request.Password);
-            if (user == null) return Unauthorized();
+            var user = await _dbContext.Users.FirstOrDefaultAsync(
+                u => u.PhoneNumber == request.PhoneNumber && u.Password == request.Password
+            );
+            if (user == null)
+                return Unauthorized();
 
             return Ok(await _GetUserLoginResponse(user));
         }
@@ -56,13 +69,20 @@ namespace HyperPost.Controllers
         {
             var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
 
-            if (role != "admin" && (request.RoleId == (int)UserRolesEnum.Admin || request.RoleId == (int)UserRolesEnum.Manager))
+            if (
+                role != "admin"
+                && (
+                    request.RoleId == (int)UserRolesEnum.Admin
+                    || request.RoleId == (int)UserRolesEnum.Manager
+                )
+            )
             {
                 return Forbid();
             }
 
             var validationResult = await _userRequestValidator.ValidateAsync(request);
-            if (!validationResult.IsValid)  return BadRequest(validationResult.Errors);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
 
             var user = new UserModel
             {
@@ -78,7 +98,7 @@ namespace HyperPost.Controllers
             {
                 await _dbContext.Users.AddAsync(user);
                 await _dbContext.SaveChangesAsync();
-            } 
+            }
             catch (UniqueConstraintException ex)
             {
                 return BadRequest(ex.Message);
@@ -89,6 +109,17 @@ namespace HyperPost.Controllers
             }
 
             return Ok();
+        }
+
+        [Authorize(Policy = "admin, manager")]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<UserResponse>> GetUserById(int id)
+        {
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null)
+                return NotFound($"User with id={id} not found");
+
+            return Ok(_GetUserResponse(user));
         }
 
         private UserResponse _GetUserResponse(UserModel model)
@@ -106,11 +137,7 @@ namespace HyperPost.Controllers
 
         private async Task<UserLoginResponse> _GetUserLoginResponse(UserModel model)
         {
-            return new UserLoginResponse
-            {
-                Id = model.Id,
-                AccessToken = await _GetJwtToken(model)
-            };
+            return new UserLoginResponse { Id = model.Id, AccessToken = await _GetJwtToken(model) };
         }
 
         private async Task<string> _GetJwtToken(UserModel model)
@@ -133,7 +160,10 @@ namespace HyperPost.Controllers
                 notBefore: DateTime.Now,
                 expires: DateTime.Now.AddMinutes(30),
                 claims: claims,
-                signingCredentials: new SigningCredentials(AuthService.GetSymmetricSecurityKey(), SecurityAlgorithms.HmacSha256)
+                signingCredentials: new SigningCredentials(
+                    AuthService.GetSymmetricSecurityKey(),
+                    SecurityAlgorithms.HmacSha256
+                )
             );
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(token);
