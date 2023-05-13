@@ -15,7 +15,7 @@ namespace HyperPost.Models
         public int SenderDepartmentId { get; set; }
         public int ReceiverDepartmentId { get; set; }
         public DateTime CreatedAt { get; set; }
-        public DateTime ModifiedAt { get; set; }
+        public DateTime? ModifiedAt { get; set; }
         public DateTime? SentAt { get; set; }
         public DateTime? ArrivedAt { get; set; }
         public DateTime? ReceivedAt { get; set; }
