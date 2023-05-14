@@ -108,7 +108,7 @@ namespace HyperPost.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return Ok();
+            return Ok(_GetUserResponse(user));
         }
 
         [Authorize(Policy = "admin, manager")]

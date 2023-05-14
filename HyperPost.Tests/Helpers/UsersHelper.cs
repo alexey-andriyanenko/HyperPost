@@ -1,13 +1,26 @@
 ﻿using HyperPost.DTO.User;
 using HyperPost.Models;
 using HyperPost.Shared;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Net;
+using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace HyperPost.Tests.Helpers
 {
+    public enum ClientsEnum
+    {
+        Default,
+        Sender,
+        Receiver
+    }
+
     public static class UsersHelper
     {
-        public static async Task<UserLoginResponse> LoginViaEmailAs(this HttpClient client, UserRolesEnum role)
+        public static async Task<UserLoginResponse> LoginViaEmailAs(
+            this HttpClient client,
+            UserRolesEnum role
+        )
         {
             var login = _GetUserLoginViaEmailData(role);
             var response = await client.PostAsJsonAsync("/users/login/email", login);
@@ -19,7 +32,10 @@ namespace HyperPost.Tests.Helpers
             return content;
         }
 
-        public static async Task<UserLoginResponse> LoginViaPhoneNumberAs(this HttpClient client, UserRolesEnum role)
+        public static async Task<UserLoginResponse> LoginViaPhoneNumberAs(
+            this HttpClient client,
+            UserRolesEnum role
+        )
         {
             var login = _GetUserLoginViaPhoneNumbertData(role);
             var response = await client.PostAsJsonAsync("/users/login/phone", login);
@@ -31,7 +47,7 @@ namespace HyperPost.Tests.Helpers
             return content;
         }
 
-        public static UserModel GetUserModel(UserRolesEnum role)
+        public static UserModel GetExistingUserModel(UserRolesEnum role)
         {
             var user = new UserModel();
 
@@ -55,8 +71,8 @@ namespace HyperPost.Tests.Helpers
                 user.PhoneNumber = "222222";
                 user.Email = "manager@example.com";
                 user.Password = "manager_password";
-            }   
-            
+            }
+
             if (role == UserRolesEnum.Client)
             {
                 user.Id = (int)role;
@@ -71,9 +87,45 @@ namespace HyperPost.Tests.Helpers
             return user;
         }
 
-        private static UserLoginViaPhoneNumberRequest _GetUserLoginViaPhoneNumbertData(UserRolesEnum role)
+        public static UserRequest GetUserRequest(ClientsEnum testUser)
         {
-            var user = GetUserModel(role);
+            var user = new UserRequest();
+
+            if (testUser == ClientsEnum.Default)
+            {
+                user.RoleId = (int)UserRolesEnum.Client;
+                user.FirstName = "Client";
+                user.LastName = "User";
+                user.PhoneNumber = "444444";
+                user.Email = "default@example.com";
+            }
+
+            if (testUser == ClientsEnum.Sender)
+            {
+                user.RoleId = (int)UserRolesEnum.Client;
+                user.FirstName = "Client";
+                user.LastName = "User";
+                user.PhoneNumber = "555555";
+                user.Email = "sender@email.com";
+            }
+
+            if (testUser == ClientsEnum.Receiver)
+            {
+                user.RoleId = (int)UserRolesEnum.Client;
+                user.FirstName = "Client";
+                user.LastName = "User";
+                user.PhoneNumber = "666666";
+                user.Email = "receiver@example.com";
+            }
+
+            return user;
+        }
+
+        private static UserLoginViaPhoneNumberRequest _GetUserLoginViaPhoneNumbertData(
+            UserRolesEnum role
+        )
+        {
+            var user = GetExistingUserModel(role);
             var login = new UserLoginViaPhoneNumberRequest
             {
                 PhoneNumber = user.PhoneNumber,
@@ -85,7 +137,7 @@ namespace HyperPost.Tests.Helpers
 
         private static UserLoginViaEmailRequest _GetUserLoginViaEmailData(UserRolesEnum role)
         {
-            var user = GetUserModel(role);
+            var user = GetExistingUserModel(role);
             var login = new UserLoginViaEmailRequest
             {
                 Email = user.Email,

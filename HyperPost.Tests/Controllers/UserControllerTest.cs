@@ -49,6 +49,14 @@ namespace HyperPost.Tests.Controllers
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
+            var content = await response.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(user.RoleId, content.RoleId);
+            Assert.Equal(user.FirstName, content.FirstName);
+            Assert.Equal(user.LastName, content.LastName);
+            Assert.Equal(user.Email, content.Email);
+            Assert.Equal(user.PhoneNumber, content.PhoneNumber);
+
             // cleanup ↓
             using (var scope = _factory.Services.CreateScope())
             {
@@ -90,6 +98,14 @@ namespace HyperPost.Tests.Controllers
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
+            var content = await response.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(user.RoleId, content.RoleId);
+            Assert.Equal(user.FirstName, content.FirstName);
+            Assert.Equal(user.LastName, content.LastName);
+            Assert.Equal(user.Email, content.Email);
+            Assert.Equal(user.PhoneNumber, content.PhoneNumber);
+
             // cleanup ↓
             using (var scope = _factory.Services.CreateScope())
             {
@@ -130,6 +146,14 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(user.RoleId, content.RoleId);
+            Assert.Equal(user.FirstName, content.FirstName);
+            Assert.Equal(user.LastName, content.LastName);
+            Assert.Equal(user.Email, content.Email);
+            Assert.Equal(user.PhoneNumber, content.PhoneNumber);
 
             // cleanup ↓
             using (var scope = _factory.Services.CreateScope())
@@ -230,6 +254,14 @@ namespace HyperPost.Tests.Controllers
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
+            var content = await response.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(user.RoleId, content.RoleId);
+            Assert.Equal(user.FirstName, content.FirstName);
+            Assert.Equal(user.LastName, content.LastName);
+            Assert.Equal(user.Email, content.Email);
+            Assert.Equal(user.PhoneNumber, content.PhoneNumber);
+
             // cleanup ↓
             using (var scope = _factory.Services.CreateScope())
             {
@@ -246,7 +278,7 @@ namespace HyperPost.Tests.Controllers
         [Fact]
         public async Task POST_CreateUserWithExistingEmail_ReturnsBadRequest()
         {
-            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+            var existingClient = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
             var user = new UserRequest
             {
@@ -275,7 +307,7 @@ namespace HyperPost.Tests.Controllers
         [Fact]
         public async Task POST_CreateUserWithExistingPhoneNumber_ReturnsBadRequest()
         {
-            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+            var existingClient = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
             var user = new UserRequest
             {
@@ -508,7 +540,7 @@ namespace HyperPost.Tests.Controllers
         }
 
         [Fact]
-        public async Task POST_CreateClientUserWithoutPassword_ReturnsBadRequest()
+        public async Task POST_CreateClientUserWithoutPassword_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
             var user = new UserRequest
@@ -533,6 +565,14 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(user.RoleId, content.RoleId);
+            Assert.Equal(user.FirstName, content.FirstName);
+            Assert.Equal(user.LastName, content.LastName);
+            Assert.Equal(user.Email, content.Email);
+            Assert.Equal(user.PhoneNumber, content.PhoneNumber);
 
             // cleanup ↓
             using (var scope = _factory.Services.CreateScope())
@@ -604,7 +644,7 @@ namespace HyperPost.Tests.Controllers
         public async Task GET_AdminGetsUserById_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+            var existingClient = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
 
             var message = new HttpRequestMessage();
 
@@ -632,7 +672,7 @@ namespace HyperPost.Tests.Controllers
         public async Task GET_ManagerGetsUserById_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+            var existingClient = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
 
             var message = new HttpRequestMessage();
 
@@ -659,7 +699,7 @@ namespace HyperPost.Tests.Controllers
         public async Task GET_ClientGetsUserById_ReturnsForbidden()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Client);
-            var existingClient = UsersHelper.GetUserModel(UserRolesEnum.Client);
+            var existingClient = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
             var message = new HttpRequestMessage();
             message.Method = HttpMethod.Get;
             message.Headers.Authorization = new AuthenticationHeaderValue(

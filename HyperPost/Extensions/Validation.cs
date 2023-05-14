@@ -1,6 +1,7 @@
 ﻿using FluentValidation;
 using HyperPost.DTO.Category;
 using HyperPost.DTO.Department;
+using HyperPost.DTO.Package;
 using HyperPost.DTO.User;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -16,6 +17,7 @@ namespace HyperPost.Extensions
                 IValidator<PackageCategoryRequest>,
                 PackageCategoryRequestValidator
             >();
+            services.AddScoped<IValidator<PackageRequest>, PackageRequestValidator>();
         }
     }
 }
