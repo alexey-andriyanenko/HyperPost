@@ -26,7 +26,7 @@ namespace HyperPost.Models
         [Column(TypeName = "decimal(8, 2)")]
         public decimal DeliveryPrice { get; set; }
 
-        [Column(TypeName = "decimal(2, 2)")]
+        [Column(TypeName = "decimal(4, 2)")]
         public decimal Weight { get; set; }
     }
 }
