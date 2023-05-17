@@ -25,6 +25,18 @@ namespace HyperPost.Controllers
             _categoryRequestValidator = categoryRequestValidator;
         }
 
+        [Authorize]
+        [HttpGet("{id}")]
+        public async Task<ActionResult<PackageCategoryResponse>> GetCategory([FromRoute] int id)
+        {
+            var model = await _dbContext.PackageCategoties.FindAsync(id);
+            if (model == null)
+                return NotFound();
+
+            var response = new PackageCategoryResponse { Id = model.Id, Name = model.Name };
+            return Ok(response);
+        }
+
         [Authorize(Policy = "admin")]
         [HttpPost]
         public async Task<ActionResult<PackageCategoryResponse>> CreateCategory(

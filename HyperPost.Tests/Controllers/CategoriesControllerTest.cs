@@ -327,5 +327,99 @@ namespace HyperPost.Tests.Controllers
                 db.SaveChanges();
             }
         }
+
+        [Fact]
+        public async Task GET_AdminGetsCategory_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var existingCategory = CategoriesHelper.GetPackageCategoryModel(CategoriesEnum.Books);
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/{existingCategory.Id}"
+            );
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<PackageCategoryResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(existingCategory.Id, content.Id);
+            Assert.Equal(existingCategory.Name, content.Name);
+        }
+
+        [Fact]
+        public async Task GET_ManagerGetsCategory_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var existingCategory = CategoriesHelper.GetPackageCategoryModel(CategoriesEnum.Books);
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/{existingCategory.Id}"
+            );
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<PackageCategoryResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(existingCategory.Id, content.Id);
+            Assert.Equal(existingCategory.Name, content.Name);
+        }
+
+        [Fact]
+        public async Task GET_ClientGetsCategory_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+            var existingCategory = CategoriesHelper.GetPackageCategoryModel(CategoriesEnum.Books);
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/{existingCategory.Id}"
+            );
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<PackageCategoryResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(existingCategory.Id, content.Id);
+            Assert.Equal(existingCategory.Name, content.Name);
+        }
+
+        [Fact]
+        public async Task GET_GetsCategory_ReturnsNotFound()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var message = new HttpRequestMessage();
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/{CategoriesEnum.NonExistent}"
+            );
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
     }
 }

@@ -4,16 +4,17 @@ namespace HyperPost.Tests.Helpers
 {
     public enum CategoriesEnum
     {
-        Food = 1,
-        Money = 2,
-        Medicaments = 3,
-        Accumulators = 4,
-        SportsProducts = 5,
-        Clothes = 6,
-        Shoes = 7,
-        Documents = 8,
-        Books = 9,
-        Computers = 10,
+        NonExistent,
+        Food,
+        Money,
+        Medicaments,
+        Accumulators,
+        SportsProducts,
+        Clothes,
+        Shoes,
+        Documents,
+        Books,
+        Computers,
     }
 
     public static class CategoriesHelper
