@@ -54,5 +54,35 @@ namespace HyperPost.Controllers
             var response = new PackageCategoryResponse { Id = model.Id, Name = model.Name };
             return Created("category", response);
         }
+
+        [Authorize(Policy = "admin")]
+        [HttpPut("{id}")]
+        public async Task<ActionResult<PackageCategoryRequest>> UpdateCategory(
+            [FromRoute] int id,
+            [FromBody] PackageCategoryRequest category
+        )
+        {
+            var validationResult = await _categoryRequestValidator.ValidateAsync(category);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var model = await _dbContext.PackageCategoties.FindAsync(id);
+            if (model == null)
+                return NotFound();
+
+            model.Name = category.Name;
+
+            try
+            {
+                _dbContext.PackageCategoties.Update(model);
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (MaxLengthExceededException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok(category);
+        }
     }
 }
