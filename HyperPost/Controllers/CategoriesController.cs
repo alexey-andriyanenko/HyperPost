@@ -27,7 +27,7 @@ namespace HyperPost.Controllers
 
         [Authorize]
         [HttpGet("{id}")]
-        public async Task<ActionResult<PackageCategoryResponse>> GetCategory([FromRoute] int id)
+        public async Task<ActionResult<PackageCategoryResponse>> GetCategoryById([FromRoute] int id)
         {
             var model = await _dbContext.PackageCategoties.FindAsync(id);
             if (model == null)
@@ -95,6 +95,20 @@ namespace HyperPost.Controllers
             }
 
             return Ok(category);
+        }
+
+        [Authorize(Policy = "admin")]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteCategory(int id)
+        {
+            var model = await _dbContext.PackageCategoties.FindAsync(id);
+            if (model == null)
+                return NotFound();
+
+            _dbContext.PackageCategoties.Remove(model);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
         }
     }
 }

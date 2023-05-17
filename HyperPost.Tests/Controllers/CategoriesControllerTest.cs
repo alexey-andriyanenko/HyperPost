@@ -410,6 +410,7 @@ namespace HyperPost.Tests.Controllers
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
             var message = new HttpRequestMessage();
+
             message.Method = HttpMethod.Get;
             message.Headers.Authorization = new AuthenticationHeaderValue(
                 JwtBearerDefaults.AuthenticationScheme,
@@ -418,8 +419,171 @@ namespace HyperPost.Tests.Controllers
             message.RequestUri = new Uri(
                 $"http://localhost:8000/package/categories/{CategoriesEnum.NonExistent}"
             );
+
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task DELETE_AdminDeletesCategory_ReturnsNoContent()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var category = new PackageCategoryRequest { Name = "Category to delete" };
+
+            // create category ↓
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(category);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/package/categories");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent =
+                await postResponse.Content.ReadFromJsonAsync<PackageCategoryResponse>();
+            Assert.NotNull(postContent);
+            // create category ↑
+
+            // delete category ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/{postContent.Id}"
+            );
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            // delete category ↑
+
+            // get category ↓
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getMessage.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/${postContent.Id}"
+            );
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+            // get category ↑
+        }
+
+        [Fact]
+        public async Task DELETE_Manager_DeletesCategory_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var category = new PackageCategoryRequest { Name = "Category to delete" };
+
+            // create category ↓
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(category);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/package/categories");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent =
+                await postResponse.Content.ReadFromJsonAsync<PackageCategoryResponse>();
+            Assert.NotNull(postContent);
+            // create category ↑
+
+            // delete category ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/{postContent.Id}"
+            );
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+            // delete category ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var model = db.PackageCategoties.Single(x => x.Id == postContent.Id);
+                db.PackageCategoties.Remove(model);
+                await db.SaveChangesAsync();
+            }
+        }
+
+        [Fact]
+        public async Task DELETE_ClientDeletesCategory_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var clientLogin = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+            var category = new PackageCategoryRequest { Name = "Category to delete" };
+
+            // create category ↓
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(category);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/package/categories");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent =
+                await postResponse.Content.ReadFromJsonAsync<PackageCategoryResponse>();
+            Assert.NotNull(postContent);
+            // create category ↑
+
+            // delete category ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                clientLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/{postContent.Id}"
+            );
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+            // delete category ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var model = db.PackageCategoties.Single(x => x.Id == postContent.Id);
+                db.PackageCategoties.Remove(model);
+                await db.SaveChangesAsync();
+            }
         }
     }
 }
