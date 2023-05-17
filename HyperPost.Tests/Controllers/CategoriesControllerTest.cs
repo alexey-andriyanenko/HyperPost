@@ -329,6 +329,30 @@ namespace HyperPost.Tests.Controllers
         }
 
         [Fact]
+        public async Task PUT_UpdatesCategory_ReturnsNotFound()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var putCategory = new PackageCategoryRequest { Name = "Updated Test Category", };
+
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putCategory);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putMessage.RequestUri = new Uri(
+                $"http://localhost:8000/package/categories/{CategoriesEnum.NonExistent}"
+            );
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.NotFound, putResponse.StatusCode);
+        }
+
+        // TODO: test PUT category validation???
+
+        [Fact]
         public async Task GET_AdminGetsCategory_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
