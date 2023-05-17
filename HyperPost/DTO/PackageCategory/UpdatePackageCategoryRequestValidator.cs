@@ -1,10 +1,11 @@
 ﻿using FluentValidation;
 
-namespace HyperPost.DTO.Category
+namespace HyperPost.DTO.PackageCategory
 {
-    public class PackageCategoryRequestValidator : AbstractValidator<PackageCategoryRequest>
+    public class UpdatePackageCategoryRequestValidator
+        : AbstractValidator<UpdatePackageCategoryRequest>
     {
-        public PackageCategoryRequestValidator()
+        public UpdatePackageCategoryRequestValidator()
         {
             RuleFor(x => x.Name).NotEmpty().WithMessage("Name is required");
             RuleFor(x => x.Name)
