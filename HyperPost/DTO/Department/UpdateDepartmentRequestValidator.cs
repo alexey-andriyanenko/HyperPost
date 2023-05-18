@@ -2,11 +2,10 @@
 
 namespace HyperPost.DTO.Department
 {
-    public class DepartmentRequestValidator : AbstractValidator<DepartmentRequest>
+    public class UpdateDepartmentRequestValidator : AbstractValidator<UpdateDepartmentRequest>
     {
-        public DepartmentRequestValidator()
+        public UpdateDepartmentRequestValidator()
         {
-            RuleFor(x => x.Number).NotEmpty().WithMessage("Number is required");
             RuleFor(x => x.FullAddress).NotEmpty().WithMessage("FullAddress is required");
             RuleFor(x => x.FullAddress)
                 .MaximumLength(100)

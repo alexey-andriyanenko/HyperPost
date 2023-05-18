@@ -12,7 +12,14 @@ namespace HyperPost.Extensions
         public static void AddHyperPostValidation(this IServiceCollection services)
         {
             services.AddScoped<IValidator<UserRequest>, UserRequestValidator>();
-            services.AddScoped<IValidator<DepartmentRequest>, DepartmentRequestValidator>();
+            services.AddScoped<
+                IValidator<CreateDepartmentRequest>,
+                CreateDepartmentRequestValidator
+            >();
+            services.AddScoped<
+                IValidator<UpdateDepartmentRequest>,
+                UpdateDepartmentRequestValidator
+            >();
             services.AddScoped<
                 IValidator<CreatePackageCategoryRequest>,
                 CreatePackageCategoryRequestValidator

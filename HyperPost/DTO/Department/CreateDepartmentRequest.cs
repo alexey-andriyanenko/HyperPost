@@ -2,7 +2,7 @@
 
 namespace HyperPost.DTO.Department
 {
-    public class DepartmentRequest
+    public class CreateDepartmentRequest
     {
         public int Number { get; set; }
         public string FullAddress { get; set; }

@@ -13,15 +13,18 @@ namespace HyperPost.Controllers
     public class DepartmentsController : Controller
     {
         private readonly HyperPostDbContext _dbContext;
-        private readonly IValidator<DepartmentRequest> _departmentRequestValidator;
+        private readonly IValidator<CreateDepartmentRequest> _createDepartmentRequestValidator;
+        private readonly IValidator<UpdateDepartmentRequest> _updateDepartmentRequestValidator;
 
         public DepartmentsController(
             HyperPostDbContext dbContext,
-            IValidator<DepartmentRequest> departmentRequestValidator
+            IValidator<CreateDepartmentRequest> createDepartmentRequestValidator,
+            IValidator<UpdateDepartmentRequest> updateDepartmentRequestValidator
         )
         {
             _dbContext = dbContext;
-            _departmentRequestValidator = departmentRequestValidator;
+            _createDepartmentRequestValidator = createDepartmentRequestValidator;
+            _updateDepartmentRequestValidator = updateDepartmentRequestValidator;
         }
 
         [Authorize]
@@ -45,10 +48,10 @@ namespace HyperPost.Controllers
         [Authorize(Policy = "admin, manager")]
         [HttpPost]
         public async Task<ActionResult<DepartmentResponse>> CreateDepartment(
-            [FromBody] DepartmentRequest request
+            [FromBody] CreateDepartmentRequest request
         )
         {
-            var validationResult = await _departmentRequestValidator.ValidateAsync(request);
+            var validationResult = await _createDepartmentRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
 
@@ -80,6 +83,46 @@ namespace HyperPost.Controllers
             };
 
             return Created("department", response);
+        }
+
+        [Authorize(Policy = "admin, manager")]
+        [HttpPut("{id}")]
+        public async Task<ActionResult<DepartmentResponse>> UpdateDepartment(
+            [FromRoute] int id,
+            [FromBody] UpdateDepartmentRequest request
+        )
+        {
+            var validationResult = await _updateDepartmentRequestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var model = await _dbContext.Departments.FindAsync(id);
+            if (model == null)
+                return NotFound();
+
+            model.FullAddress = request.FullAddress;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (UniqueConstraintException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MaxLengthExceededException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            var response = new DepartmentResponse
+            {
+                Id = model.Id,
+                Number = model.Number,
+                FullAddress = model.FullAddress
+            };
+
+            return Ok(response);
         }
     }
 }

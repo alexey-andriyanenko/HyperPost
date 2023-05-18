@@ -24,7 +24,11 @@ namespace HyperPost.Tests.Controllers
         [Fact]
         public async Task POST_AnonymousCreatesDepartment_ReturnsUnauthorized()
         {
-            var department = new DepartmentRequest { Number = 99, FullAddress = "Test Address", };
+            var department = new CreateDepartmentRequest
+            {
+                Number = 99,
+                FullAddress = "Test Address",
+            };
             var response = await _client.PostAsJsonAsync(
                 "http://localhost:8000/departments",
                 department
@@ -33,10 +37,37 @@ namespace HyperPost.Tests.Controllers
         }
 
         [Fact]
+        public async Task POST_ClientCreatesDepartment_ReturnsForbidden()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+            var department = new CreateDepartmentRequest
+            {
+                Number = 99,
+                FullAddress = "Test Address",
+            };
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(department);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
         public async Task POST_AdminCreatesDepartment_ReturnsCreated()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var department = new DepartmentRequest { Number = 99, FullAddress = "Test Address", };
+            var department = new CreateDepartmentRequest
+            {
+                Number = 99,
+                FullAddress = "Test Address",
+            };
 
             var message = new HttpRequestMessage();
 
@@ -70,7 +101,11 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_ManagerCreatesDepartment_ReturnsCreated()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var department = new DepartmentRequest { Number = 99, FullAddress = "Test Address", };
+            var department = new CreateDepartmentRequest
+            {
+                Number = 99,
+                FullAddress = "Test Address",
+            };
 
             var message = new HttpRequestMessage();
 
@@ -103,7 +138,11 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_ManagerCreatesDepartmentWithExistingNumber_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var department = new DepartmentRequest { Number = 1, FullAddress = "Test Address", };
+            var department = new CreateDepartmentRequest
+            {
+                Number = 1,
+                FullAddress = "Test Address",
+            };
             var message = new HttpRequestMessage();
 
             message.Method = HttpMethod.Post;
@@ -122,7 +161,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_ManagerCreatesDepartmentWithFullAddressMoreThan100Characters_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var department = new DepartmentRequest
+            var department = new CreateDepartmentRequest
             {
                 Number = 98,
                 FullAddress =
@@ -147,7 +186,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_ManagerCreatesDepartmentWithInvalidDepartmentRequest_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var department = new DepartmentRequest { Number = 98, FullAddress = null };
+            var department = new CreateDepartmentRequest { Number = 98, FullAddress = null };
 
             var message = new HttpRequestMessage();
 
@@ -260,6 +299,353 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PUT_AnonymousUpdatesDepartment_ReturnsUnauthorized()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 98,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var response = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(content);
+            // create department ↑
+
+            // update department ↓
+            var putDepartment = new UpdateDepartmentRequest { FullAddress = "updated address" };
+            var putResponse = await _client.PutAsJsonAsync(
+                $"http://localhost:8000/departments/{content.Id}",
+                putDepartment
+            );
+            Assert.Equal(HttpStatusCode.Unauthorized, putResponse.StatusCode);
+            // update department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == content.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_ClientUpdatesDepartment_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var clientLogin = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 98,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var response = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+            var content = await response.Content.ReadFromJsonAsync<DepartmentResponse>();
+
+            Assert.NotNull(content);
+            // create department ↑
+
+            // update department ↓
+            var putDepartment = new UpdateDepartmentRequest { FullAddress = "updated address" };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putDepartment);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                clientLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/departments/{content.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, putResponse.StatusCode);
+            // update department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == content.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_AdminUpdatesDepartment_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 97,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(postContent);
+            // create department ↑
+
+            // update department ↓
+            var putDepartment = new UpdateDepartmentRequest { FullAddress = "updated address" };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putDepartment);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/departments/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
+
+            var putContent = await putResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(putContent);
+            Assert.Equal(postContent.Id, putContent.Id);
+            Assert.Equal(putDepartment.FullAddress, putContent.FullAddress);
+            // update department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == postContent.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_ManagerUpdatesDepartment_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 96,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(postContent);
+            // create department ↑
+
+            // update department ↓
+            var putDepartment = new UpdateDepartmentRequest { FullAddress = "updated address" };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putDepartment);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/departments/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
+
+            var putContent = await putResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(putContent);
+            Assert.Equal(postContent.Id, putContent.Id);
+            Assert.Equal(putDepartment.FullAddress, putContent.FullAddress);
+            // update department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == postContent.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesNonExistingDepartment_ReturnsNotFound()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var putDepartment = new UpdateDepartmentRequest { FullAddress = "updated address" };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putDepartment);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/departments/0");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.NotFound, putResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesDepartmentWithInvalidData_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 95,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(postContent);
+            // create department ↑
+
+            // update department ↓
+            var putDepartment = new UpdateDepartmentRequest { FullAddress = "" };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putDepartment);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/departments/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == postContent.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesDepartmentWithFullAdressMoreThan100Characters_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 95,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(postContent);
+            // create department ↑
+
+            // update department ↓
+            var putDepartment = new UpdateDepartmentRequest { FullAddress = new string('a', 101) };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putDepartment);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/departments/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == postContent.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
         }
     }
 }
