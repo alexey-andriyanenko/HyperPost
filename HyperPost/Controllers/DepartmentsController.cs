@@ -124,5 +124,19 @@ namespace HyperPost.Controllers
 
             return Ok(response);
         }
+
+        [Authorize(Policy = "admin")]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteDepartment(int id)
+        {
+            var model = await _dbContext.Departments.FindAsync(id);
+            if (model == null)
+                return NotFound();
+
+            _dbContext.Departments.Remove(model);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
     }
 }

@@ -647,5 +647,226 @@ namespace HyperPost.Tests.Controllers
                 context.SaveChanges();
             }
         }
+
+        [Fact]
+        public async Task DELETE_AnonymousDeletesDepartment_ReturnsUnauthorized()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 95,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(postContent);
+            // create department ↑
+
+            // delete department ↓
+            var deleteResponse = await _client.DeleteAsync(
+                $"http://localhost:8000/departments/{postContent.Id}"
+            );
+            Assert.Equal(HttpStatusCode.Unauthorized, deleteResponse.StatusCode);
+            // delete department ↑
+        }
+
+        [Fact]
+        public async Task DELETE_AdminDeletesDepartment_ReturnsNoContent()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 95,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(postContent);
+            // create department ↑
+
+            // delete department ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri(
+                $"http://localhost:8000/departments/{postContent.Id}"
+            );
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            // delete department ↑
+
+            // get department ↓
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getMessage.RequestUri = new Uri($"http://localhost:8000/departments/{postContent.Id}");
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+            // get department ↑
+        }
+
+        [Fact]
+        public async Task DELETE_ManagerDeletesDepartment_ReturnsForbidden()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 95,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(postContent);
+            // create department ↑
+
+            // delete department ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri(
+                $"http://localhost:8000/departments/{postContent.Id}"
+            );
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+            // delete department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == postContent.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task DELETE_ClientDeletesDepartment_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var clientLogin = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+
+            // create department ↓
+            var postDepartment = new CreateDepartmentRequest
+            {
+                Number = 95,
+                FullAddress = "address"
+            };
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postDepartment);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/departments");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.Created, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(postContent);
+            // create department ↑
+
+            // delete department ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                clientLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri(
+                $"http://localhost:8000/departments/{postContent.Id}"
+            );
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+            // delete department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == postContent.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task DELETE_DeletesNonExistentDepartment_ReturnsNotFound()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri("http://localhost:8000/departments/0");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        }
     }
 }
