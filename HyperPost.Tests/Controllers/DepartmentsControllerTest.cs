@@ -14,6 +14,7 @@ namespace HyperPost.Tests.Controllers
     {
         private readonly HyperPostTestFactory<Program> _factory;
         private readonly HttpClient _client;
+
         public DepartmentsControllerTest(HyperPostTestFactory<Program> factory)
         {
             _factory = factory;
@@ -21,20 +22,30 @@ namespace HyperPost.Tests.Controllers
         }
 
         [Fact]
+        public async Task POST_AnonymousCreatesDepartment_ReturnsUnauthorized()
+        {
+            var department = new DepartmentRequest { Number = 99, FullAddress = "Test Address", };
+            var response = await _client.PostAsJsonAsync(
+                "http://localhost:8000/departments",
+                department
+            );
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
         public async Task POST_AdminCreatesDepartment_ReturnsCreated()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var department = new DepartmentRequest
-            {
-                Number = 99,
-                FullAddress = "Test Address",
-            };
+            var department = new DepartmentRequest { Number = 99, FullAddress = "Test Address", };
 
             var message = new HttpRequestMessage();
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(department);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/departments");
 
             var response = await _client.SendAsync(message);
@@ -59,17 +70,16 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_ManagerCreatesDepartment_ReturnsCreated()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var department = new DepartmentRequest
-            {
-                Number = 99,
-                FullAddress = "Test Address",
-            };
+            var department = new DepartmentRequest { Number = 99, FullAddress = "Test Address", };
 
             var message = new HttpRequestMessage();
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(department);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/departments");
 
             var response = await _client.SendAsync(message);
@@ -93,16 +103,15 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_ManagerCreatesDepartmentWithExistingNumber_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var department = new DepartmentRequest
-            {
-                Number = 1,
-                FullAddress = "Test Address",
-            };
+            var department = new DepartmentRequest { Number = 1, FullAddress = "Test Address", };
             var message = new HttpRequestMessage();
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(department);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/departments");
 
             var response = await _client.SendAsync(message);
@@ -116,14 +125,18 @@ namespace HyperPost.Tests.Controllers
             var department = new DepartmentRequest
             {
                 Number = 98,
-                FullAddress = "lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll"
+                FullAddress =
+                    "lllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllllll"
             };
 
             var message = new HttpRequestMessage();
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(department);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/departments");
 
             var response = await _client.SendAsync(message);
@@ -134,21 +147,119 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_ManagerCreatesDepartmentWithInvalidDepartmentRequest_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var department = new DepartmentRequest
-            {
-                Number = 98,
-                FullAddress = null
-            };
+            var department = new DepartmentRequest { Number = 98, FullAddress = null };
 
             var message = new HttpRequestMessage();
 
             message.Method = HttpMethod.Post;
             message.Content = JsonContent.Create(department);
-            message.Headers.Authorization = new AuthenticationHeaderValue(JwtBearerDefaults.AuthenticationScheme, login.AccessToken);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/departments");
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AnonymousGetsDepartment_ReturnsUnauthorized()
+        {
+            var message = new HttpRequestMessage();
+            message.Method = HttpMethod.Get;
+            message.RequestUri = new Uri("http://localhost:8000/departments/1");
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AdminGetsDepartment_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var message = new HttpRequestMessage();
+            var department = DepartmentsHelper.GetDepartmentModel(1);
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri($"http://localhost:8000/departments/{department.Id}");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(department.Id, content.Id);
+            Assert.Equal(department.Number, content.Number);
+            Assert.Equal(department.FullAddress, content.FullAddress);
+        }
+
+        [Fact]
+        public async Task GET_ManagerGetsDepartment_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var message = new HttpRequestMessage();
+            var department = DepartmentsHelper.GetDepartmentModel(1);
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri($"http://localhost:8000/departments/{department.Id}");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(department.Id, content.Id);
+            Assert.Equal(department.Number, content.Number);
+            Assert.Equal(department.FullAddress, content.FullAddress);
+        }
+
+        [Fact]
+        public async Task GET_ClientGetsDepartment_ReturnsOK()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+            var message = new HttpRequestMessage();
+            var department = DepartmentsHelper.GetDepartmentModel(1);
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri($"http://localhost:8000/departments/{department.Id}");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<DepartmentResponse>();
+            Assert.NotNull(content);
+            Assert.Equal(department.Id, content.Id);
+            Assert.Equal(department.Number, content.Number);
+            Assert.Equal(department.FullAddress, content.FullAddress);
+        }
+
+        [Fact]
+        public async Task GET_GetsNonExistentDepartment_ReturnsNotFound()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri($"http://localhost:8000/departments/0");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
     }
 }
