@@ -24,15 +24,18 @@ namespace HyperPost.Controllers
     public class UsersController : Controller
     {
         private readonly HyperPostDbContext _dbContext;
-        private readonly IValidator<UserRequest> _userRequestValidator;
+        private readonly IValidator<CreateUserRequest> _createUserRequestValidator;
+        private readonly IValidator<UpdateUserRequest> _updateUserRequestValidator;
 
         public UsersController(
             HyperPostDbContext dbContext,
-            IValidator<UserRequest> userRequestValidator
+            IValidator<CreateUserRequest> createUserRequestValidator,
+            IValidator<UpdateUserRequest> updateUserRequestValidator
         )
         {
             _dbContext = dbContext;
-            _userRequestValidator = userRequestValidator;
+            _createUserRequestValidator = createUserRequestValidator;
+            _updateUserRequestValidator = updateUserRequestValidator;
         }
 
         [HttpPost("login/email")]
@@ -65,7 +68,9 @@ namespace HyperPost.Controllers
 
         [Authorize(Policy = "admin, manager")]
         [HttpPost]
-        public async Task<ActionResult<UserResponse>> CreateUser([FromBody] UserRequest request)
+        public async Task<ActionResult<UserResponse>> CreateUser(
+            [FromBody] CreateUserRequest request
+        )
         {
             var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
 
@@ -80,7 +85,7 @@ namespace HyperPost.Controllers
                 return Forbid();
             }
 
-            var validationResult = await _userRequestValidator.ValidateAsync(request);
+            var validationResult = await _createUserRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
 
@@ -118,6 +123,63 @@ namespace HyperPost.Controllers
             var user = await _dbContext.Users.FindAsync(id);
             if (user == null)
                 return NotFound($"User with id={id} not found");
+
+            return Ok(_GetUserResponse(user));
+        }
+
+        [Authorize(Policy = "admin, manager")]
+        [HttpPut("{id}")]
+        public async Task<ActionResult<UserResponse>> UpdateUser(
+            [FromRoute] int id,
+            [FromBody] UpdateUserRequest request
+        )
+        {
+            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+            if (
+                role != "admin"
+                && (
+                    request.RoleId == (int)UserRolesEnum.Admin
+                    || request.RoleId == (int)UserRolesEnum.Manager
+                )
+            )
+            {
+                return Forbid();
+            }
+
+            var validationResult = await _updateUserRequestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var user = await _dbContext.Users.FindAsync(id);
+            if (user == null)
+                return NotFound($"User with id={id} not found");
+
+            // NOTE: editing email if it is already set is not yet supported
+            if (user.Email == null && (user.Email != request.Email))
+            {
+                user.Email = request.Email;
+            }
+            if (user.Email != null && (user.Email != request.Email))
+            {
+                return BadRequest("Email cannot be changed");
+            }
+
+            user.RoleId = request.RoleId;
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (UniqueConstraintException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MaxLengthExceededException ex)
+            {
+                return BadRequest(ex.Message);
+            }
 
             return Ok(_GetUserResponse(user));
         }

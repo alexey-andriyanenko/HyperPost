@@ -11,7 +11,8 @@ namespace HyperPost.Extensions
     {
         public static void AddHyperPostValidation(this IServiceCollection services)
         {
-            services.AddScoped<IValidator<UserRequest>, UserRequestValidator>();
+            services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
+            services.AddScoped<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();
             services.AddScoped<
                 IValidator<CreateDepartmentRequest>,
                 CreateDepartmentRequestValidator

@@ -29,7 +29,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Admin);
 
             // create sender ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -49,7 +49,7 @@ namespace HyperPost.Tests.Controllers
             // create sender ↑
 
             // create receiver ↓
-            var recieverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var recieverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -140,7 +140,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -160,7 +160,7 @@ namespace HyperPost.Tests.Controllers
             // create and ger sender ↑
 
             // create receiver ↓
-            var recieverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var recieverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -294,7 +294,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -314,7 +314,7 @@ namespace HyperPost.Tests.Controllers
             // create sender ↑
 
             // create receiver ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -411,7 +411,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
 
             var postSenderUserMessage = new HttpRequestMessage();
 
@@ -472,7 +472,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
             postSenderUserMessage.Method = HttpMethod.Post;
             postSenderUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
@@ -532,7 +532,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
             postSenderUserMessage.Method = HttpMethod.Post;
             postSenderUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
@@ -549,7 +549,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
             postReceiverUserMessage.Method = HttpMethod.Post;
             postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
@@ -613,7 +613,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -634,7 +634,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -700,7 +700,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
             postSenderUserMessage.Method = HttpMethod.Post;
             postSenderUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
@@ -717,7 +717,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
             postReceiverUserMessage.Method = HttpMethod.Post;
             postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
@@ -778,7 +778,7 @@ namespace HyperPost.Tests.Controllers
         {
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -798,7 +798,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -864,7 +864,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -884,7 +884,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -950,7 +950,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -970,7 +970,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -1035,7 +1035,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -1056,7 +1056,7 @@ namespace HyperPost.Tests.Controllers
 
             // create receiver user ↓
 
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
             postReceiverUserMessage.Method = HttpMethod.Post;
             postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
@@ -1118,7 +1118,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -1138,7 +1138,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
             postReceiverUserMessage.Method = HttpMethod.Post;
             postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
@@ -1201,7 +1201,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -1221,7 +1221,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -1285,7 +1285,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -1305,7 +1305,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;
@@ -1371,7 +1371,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
 
             // create sender user ↓
-            var senderUser = UsersHelper.GetUserRequest(ClientsEnum.Sender);
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
             var postSenderUserMessage = new HttpRequestMessage();
 
             postSenderUserMessage.Method = HttpMethod.Post;
@@ -1391,7 +1391,7 @@ namespace HyperPost.Tests.Controllers
             // create sender user ↑
 
             // create receiver user ↓
-            var receiverUser = UsersHelper.GetUserRequest(ClientsEnum.Receiver);
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
             var postReceiverUserMessage = new HttpRequestMessage();
 
             postReceiverUserMessage.Method = HttpMethod.Post;

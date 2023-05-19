@@ -24,7 +24,7 @@ namespace HyperPost.Tests.Controllers
         [Fact]
         public async Task POST_AnonymousCreatesUser_ReturnsUnauthorized()
         {
-            var user = UsersHelper.GetUserRequest(ClientsEnum.Default);
+            var user = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
             var response = await _client.PostAsJsonAsync("http://localhost:8000/users", user);
 
             Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -35,7 +35,7 @@ namespace HyperPost.Tests.Controllers
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
 
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Admin,
                 FirstName = "Admin_V2",
@@ -84,7 +84,7 @@ namespace HyperPost.Tests.Controllers
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
 
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Manager,
                 FirstName = "Manager_V2",
@@ -133,7 +133,7 @@ namespace HyperPost.Tests.Controllers
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
 
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_V2",
@@ -182,7 +182,7 @@ namespace HyperPost.Tests.Controllers
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
 
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Admin,
                 FirstName = "Admin_V2",
@@ -211,7 +211,7 @@ namespace HyperPost.Tests.Controllers
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
 
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Manager,
                 FirstName = "Manager_V2",
@@ -240,7 +240,7 @@ namespace HyperPost.Tests.Controllers
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
 
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_V2",
@@ -289,7 +289,7 @@ namespace HyperPost.Tests.Controllers
         {
             var existingClient = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_V2",
@@ -318,7 +318,7 @@ namespace HyperPost.Tests.Controllers
         {
             var existingClient = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_V2",
@@ -346,7 +346,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateUserWithFirstNameMoreThan30Characters_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "lllllllllllllllllllllllllllllll",
@@ -374,7 +374,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateUserWithLastNameMoreThan30Characters_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_v2",
@@ -402,7 +402,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateUserWithEmailMoreThan30Characters_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_v2",
@@ -430,7 +430,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateUserWithInvalidEmail_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_v2",
@@ -458,7 +458,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateUserWithPhoneNumberMoreThan20Characters_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_v2",
@@ -486,7 +486,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateUserWithInvalidUserRequest_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = null,
@@ -514,7 +514,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateUserWithoutEmail_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_v2",
@@ -552,7 +552,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateClientUserWithoutPassword_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Client,
                 FirstName = "Client_v2",
@@ -597,7 +597,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateAdminUserWithoutPassword_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Admin,
                 FirstName = "Admin_v2",
@@ -625,7 +625,7 @@ namespace HyperPost.Tests.Controllers
         public async Task POST_CreateManagerUserWithoutPassword_ReturnsBadRequest()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var user = new UserRequest
+            var user = new CreateUserRequest
             {
                 RoleId = (int)UserRolesEnum.Manager,
                 FirstName = "Manager_v2",
@@ -748,6 +748,755 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PUT_AnonymousUpdatesUser_ReturnsUnauthorized()
+        {
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Put;
+            message.Content = JsonContent.Create(
+                new CreateUserRequest
+                {
+                    RoleId = (int)UserRolesEnum.Client,
+                    FirstName = "Client_v2",
+                    LastName = "User",
+                    Email = "example@.com",
+                    PhoneNumber = "23142512",
+                    Password = "123456",
+                }
+            );
+            message.RequestUri = new Uri("http://localhost:8000/users/1");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PUT_AdminUpdatesUser_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = postUser.RoleId,
+                FirstName = "Updated Client FirstName",
+                LastName = "Updated Client LastName",
+                Email = postUser.Email,
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
+
+            var putContent = await putResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(putContent);
+            Assert.Equal(postContent.Id, putContent.Id);
+            Assert.Equal(postUser.RoleId, putContent.RoleId);
+            Assert.Equal(putUser.FirstName, putContent.FirstName);
+            Assert.Equal(putUser.LastName, putContent.LastName);
+            Assert.Equal(putUser.Email, putContent.Email);
+            Assert.Equal(postUser.PhoneNumber, putContent.PhoneNumber);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_ManagerUpdatesAdmin_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.Admin);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Admin,
+                FirstName = "Updated Admin FirstName",
+                LastName = "Updated Admin LastName",
+                Email = postUser.Email,
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_ManagerUpdatesManager_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.Manager);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Manager,
+                FirstName = "Updated Manager FirstName",
+                LastName = "Updated Manager LastName",
+                Email = postUser.Email,
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_ClientUpdatesUser_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var clientLogin = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Updated Client FirstName",
+                LastName = "Updated Client LastName",
+                Email = postUser.Email,
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                clientLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesUserWithEmptyData_ReturnsBadRequest()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            var postMessage = new HttpRequestMessage();
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "",
+                LastName = "",
+                Email = "",
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesUserWithFirstNameMoreThan30Characters_ReturnsBadRequest()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "1234567890123456789012345678901",
+                LastName = "Updated Client LastName",
+                Email = postUser.Email,
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesUserWithLastNameMoreThan30Characters_ReturnsBadRequest()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+            var postResponse = await _client.SendAsync(postMessage);
+
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Updated Client FirstName",
+                LastName = "1234567890123456789012345678901",
+                Email = postUser.Email,
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_SetsEmail_ReturnsOk()
+        {
+            /* Test Description
+             * user should be able to update his email if it was not set before
+             */
+
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            postUser.Email = null;
+
+            var postMessage = new HttpRequestMessage();
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Updated Client FirstName",
+                LastName = "Updated Client LastName",
+                Email = "temp@example.com",
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.OK, putResponse.StatusCode);
+
+            var putContent = await putResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(putContent);
+            Assert.Equal(putUser.Email, putContent.Email);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_ChangesEmail_ReturnsBadRequest()
+        {
+            /* Test Description
+             * user should not be able to change his email if it was set before
+             */
+
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Updated Client FirstName",
+                LastName = "Updated Client LastName",
+                Email = "new@email.com",
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_SetsEmailWithMoreThan50Characters_ReturnsBadRequest()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            postUser.Email = null;
+
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Updated Client FirstName",
+                LastName = "Updated Client LastName",
+                Email = "llllllllllllllllllllllllllllllllllllllllllllllllll@email.com",
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_SetsInvalidEmail_ReturnsBadRequest()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            postUser.Email = null;
+
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Updated Client FirstName",
+                LastName = "Updated Client LastName",
+                Email = "invalidemail",
+            };
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_SetsExistingEmail_ReturnsBadRequest()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var existingUser = UsersHelper.GetExistingUserModel(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            postUser.Email = null;
+
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // update user ↓
+            var putUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            putUser.Email = existingUser.Email;
+
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+            // update user ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = db.Users.Single(u => u.Id == postContent.Id);
+                db.Users.Remove(user);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesNonExistentUser_ReturnsNotFound()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // update user ↓
+            var putUser = new UpdateUserRequest
+            {
+                RoleId = (int)UserRolesEnum.Client,
+                FirstName = "Updated Client FirstName",
+                LastName = "Updated Client LastName",
+                Email = "some@example.com",
+            };
+
+            var putMessage = new HttpRequestMessage();
+
+            putMessage.Method = HttpMethod.Put;
+            putMessage.Content = JsonContent.Create(putUser);
+            putMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            putMessage.RequestUri = new Uri($"http://localhost:8000/users/0");
+
+            var putResponse = await _client.SendAsync(putMessage);
+            Assert.Equal(HttpStatusCode.NotFound, putResponse.StatusCode);
+            // update user ↑
         }
     }
 }

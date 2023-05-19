@@ -2,7 +2,7 @@
 
 namespace HyperPost.DTO.User
 {
-    public class UserRequest
+    public class CreateUserRequest
     {
         public int RoleId { get; set; }
         public string FirstName { get; set; }

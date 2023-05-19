@@ -3,9 +3,9 @@ using HyperPost.Shared;
 
 namespace HyperPost.DTO.User
 {
-    public class UserRequestValidator : AbstractValidator<UserRequest>
+    public class CreateUserRequestValidator : AbstractValidator<CreateUserRequest>
     {
-        public UserRequestValidator()
+        public CreateUserRequestValidator()
         {
             RuleFor(x => x.FirstName).NotEmpty().WithMessage("FirstName is required");
             RuleFor(x => x.FirstName)

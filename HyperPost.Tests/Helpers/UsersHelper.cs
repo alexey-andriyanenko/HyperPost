@@ -1,18 +1,17 @@
 ﻿using HyperPost.DTO.User;
 using HyperPost.Models;
 using HyperPost.Shared;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
-using System.Net;
-using System.Net.Http.Headers;
 using System.Net.Http.Json;
 
 namespace HyperPost.Tests.Helpers
 {
-    public enum ClientsEnum
+    public enum TestUsersEnum
     {
-        Default,
-        Sender,
-        Receiver
+        Admin,
+        Manager,
+        DefaultClient,
+        SenderClient,
+        ReceiverClient
     }
 
     public static class UsersHelper
@@ -87,11 +86,11 @@ namespace HyperPost.Tests.Helpers
             return user;
         }
 
-        public static UserRequest GetUserRequest(ClientsEnum testUser)
+        public static CreateUserRequest GetUserRequest(TestUsersEnum testUser)
         {
-            var user = new UserRequest();
+            var user = new CreateUserRequest();
 
-            if (testUser == ClientsEnum.Default)
+            if (testUser == TestUsersEnum.DefaultClient)
             {
                 user.RoleId = (int)UserRolesEnum.Client;
                 user.FirstName = "Client";
@@ -100,7 +99,7 @@ namespace HyperPost.Tests.Helpers
                 user.Email = "default@example.com";
             }
 
-            if (testUser == ClientsEnum.Sender)
+            if (testUser == TestUsersEnum.SenderClient)
             {
                 user.RoleId = (int)UserRolesEnum.Client;
                 user.FirstName = "Client";
@@ -109,13 +108,33 @@ namespace HyperPost.Tests.Helpers
                 user.Email = "sender@email.com";
             }
 
-            if (testUser == ClientsEnum.Receiver)
+            if (testUser == TestUsersEnum.ReceiverClient)
             {
                 user.RoleId = (int)UserRolesEnum.Client;
                 user.FirstName = "Client";
                 user.LastName = "User";
                 user.PhoneNumber = "666666";
                 user.Email = "receiver@example.com";
+            }
+
+            if (testUser == TestUsersEnum.Admin)
+            {
+                user.RoleId = (int)UserRolesEnum.Admin;
+                user.FirstName = "Admin";
+                user.LastName = "User";
+                user.PhoneNumber = "777777";
+                user.Email = "test_admin@example.com";
+                user.Password = "test_admin";
+            }
+
+            if (testUser == TestUsersEnum.Manager)
+            {
+                user.RoleId = (int)UserRolesEnum.Manager;
+                user.FirstName = "Manager";
+                user.LastName = "User";
+                user.PhoneNumber = "888888";
+                user.Email = "test_manager@example.com";
+                user.Password = "test_manager";
             }
 
             return user;
