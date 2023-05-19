@@ -682,6 +682,15 @@ namespace HyperPost.Tests.Controllers
             );
             Assert.Equal(HttpStatusCode.Unauthorized, deleteResponse.StatusCode);
             // delete department ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var context = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var departmentToDelete = context.Departments.Single(d => d.Id == postContent.Id);
+                context.Departments.Remove(departmentToDelete);
+                context.SaveChanges();
+            }
         }
 
         [Fact]
