@@ -22,6 +22,15 @@ namespace HyperPost.Tests.Controllers
         }
 
         [Fact]
+        public async Task POST_AnonymousCreatesUser_ReturnsUnauthorized()
+        {
+            var user = UsersHelper.GetUserRequest(ClientsEnum.Default);
+            var response = await _client.PostAsJsonAsync("http://localhost:8000/users", user);
+
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
         public async Task POST_AdminCreatesAdmin_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
@@ -638,6 +647,18 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AnonymousGetsUserById_ReturnsUnauthorized()
+        {
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.RequestUri = new Uri("http://localhost:8000/users/1");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
         }
 
         [Fact]
