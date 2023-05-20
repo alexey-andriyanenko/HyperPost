@@ -1498,5 +1498,305 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(HttpStatusCode.NotFound, putResponse.StatusCode);
             // update user ↑
         }
+
+        [Fact]
+        public async Task DELETE_AnonymousDeletesUser_ReturnsUnauthorized()
+        {
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/0");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.Unauthorized, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task DELETE_ClientDeletesUser_ReturnsForbidden()
+        {
+            var clientLogin = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                clientLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/0");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task DELETE_AdminDeletesAdmin_ReturnsNoContent()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.Admin);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // delete user ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            // delete user ↑
+        }
+
+        [Fact]
+        public async Task DELETE_AdminDeletesManager_ReturnsNoContent()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.Manager);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // delete user ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            // delete user ↑
+        }
+
+        [Fact]
+        public async Task DELETE_AdminDeletesClient_ReturnsNoContent()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // delete user ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            // delete user ↑
+        }
+
+        [Fact]
+        public async Task DELETE_ManagerDeletesAdmin_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.Admin);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // delete user ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+            // delete user ↑
+
+            // cleanup ↓
+            using (var scrope = _factory.Services.CreateScope())
+            {
+                var context = scrope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = context.Users.Single(u => u.Id == postContent.Id);
+                context.Users.Remove(user);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task DELETE_ManagerDeletesManager_ReturnsForbidden()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.Manager);
+            var postMessage = new HttpRequestMessage();
+
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // delete user ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, deleteResponse.StatusCode);
+            // delete user ↑
+
+            // cleanup ↓
+            using (var scrope = _factory.Services.CreateScope())
+            {
+                var context = scrope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var user = context.Users.Single(u => u.Id == postContent.Id);
+                context.Users.Remove(user);
+                context.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task DELETE_ManagerDeletesClient_ReturnsNoContent()
+        {
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create user ↓
+            var postUser = UsersHelper.GetUserRequest(TestUsersEnum.DefaultClient);
+            var postMessage = new HttpRequestMessage();
+            postMessage.Method = HttpMethod.Post;
+            postMessage.Content = JsonContent.Create(postUser);
+            postMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            postMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postResponse = await _client.SendAsync(postMessage);
+            Assert.Equal(HttpStatusCode.OK, postResponse.StatusCode);
+
+            var postContent = await postResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postContent);
+            // create user ↑
+
+            // delete user ↓
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/{postContent.Id}");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.NoContent, deleteResponse.StatusCode);
+            // delete user ↑
+        }
+
+        [Fact]
+        public async Task DELETE_DeletesNonExistentUser_ReturnsNotFound()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            var deleteMessage = new HttpRequestMessage();
+
+            deleteMessage.Method = HttpMethod.Delete;
+            deleteMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            deleteMessage.RequestUri = new Uri($"http://localhost:8000/users/{Guid.NewGuid()}");
+
+            var deleteResponse = await _client.SendAsync(deleteMessage);
+            Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        }
     }
 }

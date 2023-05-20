@@ -184,6 +184,30 @@ namespace HyperPost.Controllers
             return Ok(_GetUserResponse(user));
         }
 
+        [Authorize(Policy = "admin, manager")]
+        [HttpDelete("{id}")]
+        public async Task<ActionResult> DeleteUser(int id)
+        {
+            /* description
+             * admin can delete any user
+             * manager can delete only client user
+             */
+
+            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+            var user = await _dbContext.Users.FindAsync(id);
+
+            if (user == null)
+                return NotFound($"User with id={id} not found");
+
+            if (role == "manager" && user.RoleId != (int)UserRolesEnum.Client)
+                return Forbid();
+
+            _dbContext.Users.Remove(user);
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private UserResponse _GetUserResponse(UserModel model)
         {
             return new UserResponse
