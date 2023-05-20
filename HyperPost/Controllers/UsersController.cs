@@ -72,6 +72,11 @@ namespace HyperPost.Controllers
             [FromBody] CreateUserRequest request
         )
         {
+            /* description
+             * admin can create any user
+             * manager can create only client users
+             */
+
             var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
 
             if (
@@ -134,17 +139,24 @@ namespace HyperPost.Controllers
             [FromBody] UpdateUserRequest request
         )
         {
+            /* description
+             * admin can update only manager and client users
+             * manager can update only client users
+             */
+
             var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+
+            if (role == "admin" && request.RoleId == (int)UserRolesEnum.Admin)
+                return Forbid();
+
             if (
-                role != "admin"
+                role == "manager"
                 && (
                     request.RoleId == (int)UserRolesEnum.Admin
                     || request.RoleId == (int)UserRolesEnum.Manager
                 )
             )
-            {
                 return Forbid();
-            }
 
             var validationResult = await _updateUserRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
