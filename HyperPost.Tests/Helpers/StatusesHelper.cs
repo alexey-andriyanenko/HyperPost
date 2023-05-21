@@ -8,7 +8,8 @@ namespace HyperPost.Tests.Helpers
         Sent = 2,
         Arrived = 3,
         Received = 4,
-        Archived = 5
+        Archived = 5,
+        Modified = 6,
     }
 
     public static class StatusesHelper

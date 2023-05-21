@@ -30,6 +30,7 @@ namespace HyperPost.Extensions
                 UpdatePackageCategoryRequestValidator
             >();
             services.AddScoped<IValidator<CreatePackageRequest>, CreatePackageRequestValidator>();
+            services.AddScoped<IValidator<UpdatePackageRequest>, UpdatePackageRequestValidator>();
         }
     }
 }

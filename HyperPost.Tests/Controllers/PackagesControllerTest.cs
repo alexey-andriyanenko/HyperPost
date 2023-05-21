@@ -1980,5 +1980,478 @@ namespace HyperPost.Tests.Controllers
             var getPackageResponse = await _httpClient.SendAsync(getPackageMessage);
             Assert.Equal(HttpStatusCode.NotFound, getPackageResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task PUT_AnonymousUpdatesPackage_ReturnsUnauthorized()
+        {
+            var guid = Guid.NewGuid();
+            var putPackageMessage = new HttpRequestMessage();
+            putPackageMessage.Method = HttpMethod.Put;
+            putPackageMessage.RequestUri = new Uri($"http://localhost:8000/packages/{guid}");
+
+            var putPackageResponse = await _httpClient.SendAsync(putPackageMessage);
+            Assert.Equal(HttpStatusCode.Unauthorized, putPackageResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task PUT_AdminUpdatesPackage_ReturnsOk()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Admin);
+
+            // create sender user ↓
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
+            var postSenderUserMessage = new HttpRequestMessage();
+
+            postSenderUserMessage.Method = HttpMethod.Post;
+            postSenderUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postSenderUserMessage.Content = JsonContent.Create(senderUser);
+            postSenderUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postSenderUserResponse = await _httpClient.SendAsync(postSenderUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postSenderUserResponse.StatusCode);
+
+            var postSenderUserContent =
+                await postSenderUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postSenderUserContent);
+            // create sender user ↑
+
+            // create receiver user ↓
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
+            var postReceiverUserMessage = new HttpRequestMessage();
+
+            postReceiverUserMessage.Method = HttpMethod.Post;
+            postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postReceiverUserMessage.Content = JsonContent.Create(receiverUser);
+            postReceiverUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postReceiverUserResponse = await _httpClient.SendAsync(postReceiverUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postReceiverUserResponse.StatusCode);
+
+            var postReceiverUserContent =
+                await postReceiverUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postReceiverUserContent);
+            // create receiver user ↑
+
+            var senderDepartment = DepartmentsHelper.GetDepartmentModel(1);
+            var receiverDepartment = DepartmentsHelper.GetDepartmentModel(2);
+
+            // create package ↓
+            var postPackage = new CreatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Books,
+                SenderUserId = postSenderUserContent.Id,
+                ReceiverUserId = postReceiverUserContent.Id,
+                SenderDepartmentId = senderDepartment.Id,
+                ReceiverDepartmentId = receiverDepartment.Id,
+                Weight = 2m,
+                PackagePrice = 10m,
+                DeliveryPrice = 5m,
+                Description = "Test package"
+            };
+            var postPackageMessage = new HttpRequestMessage();
+
+            postPackageMessage.Method = HttpMethod.Post;
+            postPackageMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postPackageMessage.Content = JsonContent.Create(postPackage);
+            postPackageMessage.RequestUri = new Uri("http://localhost:8000/packages");
+
+            var postPackageResponse = await _httpClient.SendAsync(postPackageMessage);
+            Assert.Equal(HttpStatusCode.Created, postPackageResponse.StatusCode);
+
+            var postPackageContent =
+                await postPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
+            Assert.NotNull(postPackageContent);
+            // create package ↑
+
+            // update package ↓
+            var putPackage = new UpdatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Clothes,
+                Description = "Updated test package"
+            };
+            var putPackageMessage = new HttpRequestMessage();
+
+            putPackageMessage.Method = HttpMethod.Put;
+            putPackageMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putPackageMessage.Content = JsonContent.Create(putPackage);
+            putPackageMessage.RequestUri = new Uri(
+                $"http://localhost:8000/packages/{postPackageContent.Id}"
+            );
+
+            var putPackageResponse = await _httpClient.SendAsync(putPackageMessage);
+            Assert.Equal(HttpStatusCode.OK, putPackageResponse.StatusCode);
+
+            var putPackageContent =
+                await putPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
+            Assert.NotNull(putPackageContent);
+            // assert that valid response is returned
+            Assert.Equal(postPackageContent.Id, putPackageContent.Id);
+            Assert.Equal(postPackageContent.SenderUserId, putPackageContent.SenderUserId);
+            Assert.Equal(postPackageContent.ReceiverUserId, putPackageContent.ReceiverUserId);
+            Assert.Equal(
+                postPackageContent.SenderDepartmentId,
+                putPackageContent.SenderDepartmentId
+            );
+            Assert.Equal(
+                postPackageContent.ReceiverDepartmentId,
+                putPackageContent.ReceiverDepartmentId
+            );
+            Assert.Equal(postPackageContent.Weight, putPackageContent.Weight);
+            Assert.Equal(postPackageContent.PackagePrice, putPackageContent.PackagePrice);
+            Assert.Equal(postPackageContent.DeliveryPrice, putPackageContent.DeliveryPrice);
+
+            Assert.Equal(putPackage.CategoryId, putPackageContent.CategoryId);
+            Assert.Equal(putPackage.Description, putPackageContent.Description);
+            Assert.Equal((int)StatusesEnum.Modified, putPackageContent.StatusId);
+            // update package ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var senderUserToRemove = db.Users.Single(u => u.Id == postSenderUserContent.Id);
+                db.Users.Remove(senderUserToRemove);
+                var receiverUserToRemove = db.Users.Single(u => u.Id == postReceiverUserContent.Id);
+                db.Users.Remove(receiverUserToRemove);
+                var packageToRemove = db.Packages.Single(p => p.Id == postPackageContent.Id);
+                db.Packages.Remove(packageToRemove);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_ManagerUpdatesPackage_ReturnsOk()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create sender user ↓
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
+            var postSenderUserMessage = new HttpRequestMessage();
+
+            postSenderUserMessage.Method = HttpMethod.Post;
+            postSenderUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postSenderUserMessage.Content = JsonContent.Create(senderUser);
+            postSenderUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postSenderUserResponse = await _httpClient.SendAsync(postSenderUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postSenderUserResponse.StatusCode);
+
+            var postSenderUserContent =
+                await postSenderUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postSenderUserContent);
+            // create sender user ↑
+
+            // create receiver user ↓
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
+            var postReceiverUserMessage = new HttpRequestMessage();
+
+            postReceiverUserMessage.Method = HttpMethod.Post;
+            postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postReceiverUserMessage.Content = JsonContent.Create(receiverUser);
+            postReceiverUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postReceiverUserResponse = await _httpClient.SendAsync(postReceiverUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postReceiverUserResponse.StatusCode);
+
+            var postReceiverUserContent =
+                await postReceiverUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postReceiverUserContent);
+            // create receiver user ↑
+
+            var senderDepartment = DepartmentsHelper.GetDepartmentModel(1);
+            var receiverDepartment = DepartmentsHelper.GetDepartmentModel(2);
+
+            // create package ↓
+            var postPackage = new CreatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Books,
+                SenderUserId = postSenderUserContent.Id,
+                ReceiverUserId = postReceiverUserContent.Id,
+                SenderDepartmentId = senderDepartment.Id,
+                ReceiverDepartmentId = receiverDepartment.Id,
+                Weight = 2m,
+                PackagePrice = 10m,
+                DeliveryPrice = 5m,
+                Description = "Test package"
+            };
+            var postPackageMessage = new HttpRequestMessage();
+
+            postPackageMessage.Method = HttpMethod.Post;
+            postPackageMessage.Content = JsonContent.Create(postPackage);
+            postPackageMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postPackageMessage.RequestUri = new Uri("http://localhost:8000/packages");
+
+            var postPackageResponse = await _httpClient.SendAsync(postPackageMessage);
+            Assert.Equal(HttpStatusCode.Created, postPackageResponse.StatusCode);
+
+            var postPackageContent =
+                await postPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
+            Assert.NotNull(postPackageContent);
+            // create package ↑
+
+            // update package ↓
+            var putPackage = new UpdatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Clothes,
+                Description = "Updated test package"
+            };
+            var putPackageMessage = new HttpRequestMessage();
+
+            putPackageMessage.Method = HttpMethod.Put;
+            putPackageMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putPackageMessage.Content = JsonContent.Create(putPackage);
+            putPackageMessage.RequestUri = new Uri(
+                $"http://localhost:8000/packages/{postPackageContent.Id}"
+            );
+
+            var putPackageResponse = await _httpClient.SendAsync(putPackageMessage);
+            Assert.Equal(HttpStatusCode.OK, putPackageResponse.StatusCode);
+
+            var putPackageContent =
+                await putPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
+            Assert.NotNull(putPackageContent);
+            Assert.Equal(postPackageContent.Id, putPackageContent.Id);
+            Assert.Equal(postPackageContent.SenderUserId, putPackageContent.SenderUserId);
+            Assert.Equal(postPackageContent.ReceiverUserId, putPackageContent.ReceiverUserId);
+            Assert.Equal(
+                postPackageContent.SenderDepartmentId,
+                putPackageContent.SenderDepartmentId
+            );
+            Assert.Equal(
+                postPackageContent.ReceiverDepartmentId,
+                putPackageContent.ReceiverDepartmentId
+            );
+            Assert.Equal(postPackageContent.Weight, putPackageContent.Weight);
+            Assert.Equal(postPackageContent.PackagePrice, putPackageContent.PackagePrice);
+            Assert.Equal(postPackageContent.DeliveryPrice, putPackageContent.DeliveryPrice);
+
+            Assert.Equal(putPackage.CategoryId, putPackageContent.CategoryId);
+            Assert.Equal(putPackage.Description, putPackageContent.Description);
+            Assert.Equal((int)StatusesEnum.Modified, putPackageContent.StatusId);
+            // update package ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var senderUserToRemove = db.Users.Single(u => u.Id == postSenderUserContent.Id);
+                db.Users.Remove(senderUserToRemove);
+                var receiverUserToRemove = db.Users.Single(u => u.Id == postReceiverUserContent.Id);
+                db.Users.Remove(receiverUserToRemove);
+                var packageToRemove = db.Packages.Single(p => p.Id == postPackageContent.Id);
+                db.Packages.Remove(packageToRemove);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_ClientUpdatesPackage_ReturnsForbidden()
+        {
+            var guid = Guid.NewGuid();
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Client);
+            var putPackage = new UpdatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Clothes,
+                Description = "Updated test package"
+            };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Put;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.Content = JsonContent.Create(putPackage);
+            message.RequestUri = new Uri($"http://localhost:8000/packages/{guid}");
+
+            var response = await _httpClient.SendAsync(message);
+            Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesPackageWithDescriptionMoreThan50Characters_ReturnsBadRequest()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
+            var putPackage = new UpdatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Clothes,
+                Description = "Updated test package with description more than 50 characters"
+            };
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Put;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.Content = JsonContent.Create(putPackage);
+            message.RequestUri = new Uri($"http://localhost:8000/packages/{Guid.NewGuid()}");
+
+            var response = await _httpClient.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesPackageWithNonExistentCategory_ReturnsBadRequest()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create sender user ↓
+            var postSenderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
+            var postSenderUserMessage = new HttpRequestMessage();
+
+            postSenderUserMessage.Method = HttpMethod.Post;
+            postSenderUserMessage.Content = JsonContent.Create(postSenderUser);
+            postSenderUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postSenderUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postSenderUserResponse = await _httpClient.SendAsync(postSenderUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postSenderUserResponse.StatusCode);
+
+            var postSenderUserContent =
+                await postSenderUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postSenderUserContent);
+            // create sender user ↑
+
+            // create receiver user ↓
+            var postReceiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
+            var postReceiverUserMessage = new HttpRequestMessage();
+
+            postReceiverUserMessage.Method = HttpMethod.Post;
+            postReceiverUserMessage.Content = JsonContent.Create(postReceiverUser);
+            postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postReceiverUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var postReceiverUserResponse = await _httpClient.SendAsync(postReceiverUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postReceiverUserResponse.StatusCode);
+
+            var postReceiverUserContent =
+                await postReceiverUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postReceiverUserContent);
+            // create receiver user ↑
+
+            var senderDepartment = DepartmentsHelper.GetDepartmentModel(1);
+            var receiverDepartment = DepartmentsHelper.GetDepartmentModel(2);
+
+            // create package ↓
+            var postPackage = new CreatePackageRequest
+            {
+                SenderUserId = postSenderUserContent.Id,
+                ReceiverUserId = postReceiverUserContent.Id,
+                SenderDepartmentId = senderDepartment.Id,
+                ReceiverDepartmentId = receiverDepartment.Id,
+                Weight = 5m,
+                PackagePrice = 5m,
+                DeliveryPrice = 10m,
+                CategoryId = (int)CategoriesEnum.Clothes,
+                Description = "Test package"
+            };
+            var postPackageMessage = new HttpRequestMessage();
+
+            postPackageMessage.Method = HttpMethod.Post;
+            postPackageMessage.Content = JsonContent.Create(postPackage);
+            postPackageMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postPackageMessage.RequestUri = new Uri("http://localhost:8000/packages");
+
+            var postPackageResponse = await _httpClient.SendAsync(postPackageMessage);
+            Assert.Equal(HttpStatusCode.Created, postPackageResponse.StatusCode);
+
+            var postPackageContent =
+                await postPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
+            Assert.NotNull(postPackageContent);
+            // create package ↑
+
+            // update package ↓
+            var putPackage = new UpdatePackageRequest
+            {
+                CategoryId = 0,
+                Description = "Updated test package"
+            };
+            var putPackageMessage = new HttpRequestMessage();
+
+            putPackageMessage.Method = HttpMethod.Put;
+            putPackageMessage.Content = JsonContent.Create(putPackage);
+            putPackageMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            putPackageMessage.RequestUri = new Uri(
+                $"http://localhost:8000/packages/{postPackageContent.Id}"
+            );
+
+            var putPackageResponse = await _httpClient.SendAsync(putPackageMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, putPackageResponse.StatusCode);
+            // update package ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var senderUserToRemove = db.Users.Single(u => u.Id == postSenderUserContent.Id);
+                db.Users.Remove(senderUserToRemove);
+                var receiverUserToRemove = db.Users.Single(u => u.Id == postReceiverUserContent.Id);
+                db.Users.Remove(receiverUserToRemove);
+                var packageToRemove = db.Packages.Single(p => p.Id == postPackageContent.Id);
+                db.Packages.Remove(packageToRemove);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task PUT_UpdatesNonExistentPackage_ReturnsNotFound()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
+            var putPackage = new UpdatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Clothes,
+                Description = "Updated test package"
+            };
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Put;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.Content = JsonContent.Create(putPackage);
+            message.RequestUri = new Uri($"http://localhost:8000/packages/{Guid.NewGuid()}");
+
+            var response = await _httpClient.SendAsync(message);
+            Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+        }
     }
 }

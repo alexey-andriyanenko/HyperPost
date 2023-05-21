@@ -15,12 +15,18 @@ namespace HyperPost.Controllers
     public class PackagesController : Controller
     {
         private readonly HyperPostDbContext _dbContext;
-        private readonly IValidator<CreatePackageRequest> _packageRequestValidator;
+        private readonly IValidator<CreatePackageRequest> _createPackageRequestValidator;
+        private readonly IValidator<UpdatePackageRequest> _updatePackageRequestValidator;
 
-        public PackagesController(HyperPostDbContext dbContext)
+        public PackagesController(
+            HyperPostDbContext dbContext,
+            IValidator<CreatePackageRequest> createPackageRequestValidator,
+            IValidator<UpdatePackageRequest> updatePackageRequestValidator
+        )
         {
             _dbContext = dbContext;
-            _packageRequestValidator = new CreatePackageRequestValidator();
+            _createPackageRequestValidator = createPackageRequestValidator;
+            _updatePackageRequestValidator = updatePackageRequestValidator;
         }
 
         [Authorize]
@@ -31,27 +37,7 @@ namespace HyperPost.Controllers
             if (model == null)
                 return NotFound();
 
-            var response = new PackageResponse
-            {
-                Id = model.Id,
-                StatusId = model.StatusId,
-                CategoryId = model.CategoryId,
-                SenderUserId = model.SenderUserId,
-                ReceiverUserId = model.ReceiverUserId,
-                SenderDepartmentId = model.SenderDepartmentId,
-                ReceiverDepartmentId = model.ReceiverDepartmentId,
-                CreatedAt = model.CreatedAt,
-                ModifiedAt = model.ModifiedAt,
-                SentAt = model.SentAt,
-                ArrivedAt = model.ArrivedAt,
-                ReceivedAt = model.ReceivedAt,
-                PackagePrice = model.PackagePrice,
-                DeliveryPrice = model.DeliveryPrice,
-                Weight = model.Weight,
-                Description = model.Description
-            };
-
-            return Ok(response);
+            return Ok(_GetPackageResponse(model));
         }
 
         [Authorize(Policy = "admin, manager")]
@@ -60,7 +46,7 @@ namespace HyperPost.Controllers
             [FromBody] CreatePackageRequest request
         )
         {
-            var validationResult = await _packageRequestValidator.ValidateAsync(request);
+            var validationResult = await _createPackageRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
 
@@ -108,22 +94,63 @@ namespace HyperPost.Controllers
             await _dbContext.Packages.AddAsync(model);
             await _dbContext.SaveChangesAsync();
 
-            var response = new PackageResponse
+            return Created("package", _GetPackageResponse(model));
+        }
+
+        [Authorize(Policy = "admin, manager")]
+        [HttpPut("{id:guid}")]
+        public async Task<ActionResult<PackageResponse>> UpdatePackage(
+            [FromRoute] Guid id,
+            [FromBody] UpdatePackageRequest request
+        )
+        {
+            var validationResult = await _updatePackageRequestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var model = await _dbContext.Packages.FindAsync(id);
+            if (model == null)
+                return NotFound();
+
+            var category = await _dbContext.PackageCategoties.FindAsync(request.CategoryId);
+            if (category == null)
+                return BadRequest("Category with provided id was not found");
+
+            // TODO: add statuses enum and use it instead
+            var statuses = await _dbContext.PackageStatuses.ToListAsync();
+            var modifiedStatus = statuses.Select(x => x).Where(x => x.Name == "modified").Single();
+
+            model.CategoryId = request.CategoryId;
+            model.Description = request.Description;
+            model.StatusId = modifiedStatus.Id;
+            model.ModifiedAt = DateTime.Now;
+
+            await _dbContext.SaveChangesAsync();
+
+            return Ok(_GetPackageResponse(model));
+        }
+
+        private PackageResponse _GetPackageResponse(PackageModel model)
+        {
+            return new PackageResponse
             {
                 Id = model.Id,
                 StatusId = model.StatusId,
-                CreatedAt = model.CreatedAt,
+                CategoryId = model.CategoryId,
                 SenderUserId = model.SenderUserId,
                 ReceiverUserId = model.ReceiverUserId,
                 SenderDepartmentId = model.SenderDepartmentId,
                 ReceiverDepartmentId = model.ReceiverDepartmentId,
+                CreatedAt = model.CreatedAt,
+                ModifiedAt = model.ModifiedAt,
+                SentAt = model.SentAt,
+                ArrivedAt = model.ArrivedAt,
+                ReceivedAt = model.ReceivedAt,
                 PackagePrice = model.PackagePrice,
                 DeliveryPrice = model.DeliveryPrice,
                 Weight = model.Weight,
                 Description = model.Description
             };
-
-            return Created("package", response);
         }
     }
 }
