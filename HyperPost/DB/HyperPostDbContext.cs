@@ -76,7 +76,8 @@ namespace HyperPost.DB
                     new PackageStatusModel { Id = 2, Name = "sent" },
                     new PackageStatusModel { Id = 3, Name = "arrived" },
                     new PackageStatusModel { Id = 4, Name = "received" },
-                    new PackageStatusModel { Id = 5, Name = "archived" }
+                    new PackageStatusModel { Id = 5, Name = "archived" },
+                    new PackageStatusModel { Id = 6, Name = "modified" }
                 );
 
             modelBuilder
