@@ -4,6 +4,7 @@ using HyperPost.DB;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace HyperPost.Migrations
 {
     [DbContext(typeof(HyperPostDbContext))]
-    partial class HyperPostDbContextModelSnapshot : ModelSnapshot
+    [Migration("20230521162959_PackageStatusArchived")]
+    partial class PackageStatusArchived
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -203,9 +206,6 @@ namespace HyperPost.Migrations
 
                     b.Property<decimal>("DeliveryPrice")
                         .HasColumnType("decimal(8, 2)");
-
-                    b.Property<string>("Description")
-                        .HasColumnType("nvarchar(50)");
 
                     b.Property<DateTime?>("ModifiedAt")
                         .HasColumnType("datetime2");

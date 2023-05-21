@@ -28,5 +28,8 @@ namespace HyperPost.Models
 
         [Column(TypeName = "decimal(4, 2)")]
         public decimal Weight { get; set; }
+
+        [Column(TypeName = "nvarchar(50)")]
+        public string? Description { get; set; }
     }
 }

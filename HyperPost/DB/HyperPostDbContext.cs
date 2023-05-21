@@ -12,7 +12,9 @@ namespace HyperPost.DB
         public DbSet<DepartmentModel> Departments { get; set; }
         public DbSet<PackageCategoryModel> PackageCategoties { get; set; }
         public DbSet<PackageStatusModel> PackageStatuses { get; set; }
-        public HyperPostDbContext(DbContextOptions<HyperPostDbContext> options) : base(options) { }
+
+        public HyperPostDbContext(DbContextOptions<HyperPostDbContext> options)
+            : base(options) { }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
@@ -24,7 +26,8 @@ namespace HyperPost.DB
         {
             base.OnModelCreating(modelBuilder);
 
-            modelBuilder.Entity<UserModel>()
+            modelBuilder
+                .Entity<UserModel>()
                 .HasData(
                     new UserModel
                     {
@@ -58,22 +61,26 @@ namespace HyperPost.DB
                     }
                 );
 
-            modelBuilder.Entity<UserRoleModel>()
+            modelBuilder
+                .Entity<UserRoleModel>()
                 .HasData(
                     new UserRoleModel { Id = 1, Name = "admin" },
                     new UserRoleModel { Id = 2, Name = "manager" },
                     new UserRoleModel { Id = 3, Name = "client" }
                 );
 
-            modelBuilder.Entity<PackageStatusModel>()
+            modelBuilder
+                .Entity<PackageStatusModel>()
                 .HasData(
                     new PackageStatusModel { Id = 1, Name = "created" },
                     new PackageStatusModel { Id = 2, Name = "sent" },
                     new PackageStatusModel { Id = 3, Name = "arrived" },
-                    new PackageStatusModel { Id = 4, Name = "received" }
+                    new PackageStatusModel { Id = 4, Name = "received" },
+                    new PackageStatusModel { Id = 5, Name = "archived" }
                 );
 
-            modelBuilder.Entity<PackageCategoryModel>()
+            modelBuilder
+                .Entity<PackageCategoryModel>()
                 .HasData(
                     new PackageCategoryModel { Id = 1, Name = "Food" },
                     new PackageCategoryModel { Id = 2, Name = "Money" },
@@ -88,13 +95,15 @@ namespace HyperPost.DB
                     new PackageCategoryModel { Id = 11, Name = "Accessories" }
                 );
 
-            modelBuilder.Entity<DepartmentModel>()
+            modelBuilder
+                .Entity<DepartmentModel>()
                 .HasData(
                     new DepartmentModel
                     {
                         Id = 1,
                         Number = 1,
-                        FullAddress = "HyperPost Department #1, 5331 Rexford Court, Montgomery AL 36116"
+                        FullAddress =
+                            "HyperPost Department #1, 5331 Rexford Court, Montgomery AL 36116"
                     },
                     new DepartmentModel
                     {
@@ -112,19 +121,22 @@ namespace HyperPost.DB
                     {
                         Id = 4,
                         Number = 4,
-                        FullAddress = "HyperPost Department #4, 2325 Eastridge Circle, Moore OK 73160"
+                        FullAddress =
+                            "HyperPost Department #4, 2325 Eastridge Circle, Moore OK 73160"
                     },
                     new DepartmentModel
                     {
                         Id = 5,
                         Number = 5,
-                        FullAddress = "HyperPost Department #5, 100219141 Pine Ridge Circle, Anchorage AK 99516"
+                        FullAddress =
+                            "HyperPost Department #5, 100219141 Pine Ridge Circle, Anchorage AK 99516"
                     },
                     new DepartmentModel
                     {
                         Id = 6,
                         Number = 6,
-                        FullAddress = "HyperPost Department #6, 5275 North 59th Avenue, Glendale AZ 85301"
+                        FullAddress =
+                            "HyperPost Department #6, 5275 North 59th Avenue, Glendale AZ 85301"
                     },
                     new DepartmentModel
                     {
@@ -136,19 +148,22 @@ namespace HyperPost.DB
                     {
                         Id = 8,
                         Number = 8,
-                        FullAddress = "HyperPost Department #8, 136 Acacia Drive, Blue Lake CA 95525"
+                        FullAddress =
+                            "HyperPost Department #8, 136 Acacia Drive, Blue Lake CA 95525"
                     },
                     new DepartmentModel
                     {
                         Id = 9,
                         Number = 9,
-                        FullAddress = "HyperPost Department #9, 7701 Taylor Oaks Circle, Montgomery AL 36116"
+                        FullAddress =
+                            "HyperPost Department #9, 7701 Taylor Oaks Circle, Montgomery AL 36116"
                     },
                     new DepartmentModel
                     {
                         Id = 10,
                         Number = 10,
-                        FullAddress = "HyperPost Department #10, 243 Kentucky Avenue, Pasadena MD 21122"
+                        FullAddress =
+                            "HyperPost Department #10, 243 Kentucky Avenue, Pasadena MD 21122"
                     }
                 );
         }
