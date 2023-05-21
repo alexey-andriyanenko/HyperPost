@@ -39,6 +39,11 @@ namespace HyperPost.DTO.Package
                 .GreaterThanOrEqualTo(0.2m)
                 .WithMessage("Weight must be greater than 0.2kg");
             RuleFor(x => x.Weight).PrecisionScale(4, 2, false);
+
+            RuleFor(x => x.Description)
+                .MaximumLength(50)
+                .When(x => !string.IsNullOrEmpty(x.Description))
+                .WithMessage("Description is too long");
         }
     }
 }

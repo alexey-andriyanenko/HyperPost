@@ -8,6 +8,7 @@ namespace HyperPost.Tests.Helpers
         Sent = 2,
         Arrived = 3,
         Received = 4,
+        Archived = 5
     }
 
     public static class StatusesHelper
@@ -29,6 +30,8 @@ namespace HyperPost.Tests.Helpers
                 case 4:
                     status.Name = "received";
                     break;
+                case 5:
+                    status.Name = "archived";
             }
             return status;
         }
