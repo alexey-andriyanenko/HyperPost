@@ -19,5 +19,6 @@ namespace HyperPost.DTO.Package
         public decimal PackagePrice { get; set; }
         public decimal DeliveryPrice { get; set; }
         public decimal Weight { get; set; }
+        public string? Description { get; set; }
     }
 }

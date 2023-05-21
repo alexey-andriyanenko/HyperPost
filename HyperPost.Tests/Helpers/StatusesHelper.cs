@@ -32,6 +32,7 @@ namespace HyperPost.Tests.Helpers
                     break;
                 case 5:
                     status.Name = "archived";
+                    break;
             }
             return status;
         }

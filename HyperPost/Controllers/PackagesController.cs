@@ -47,7 +47,8 @@ namespace HyperPost.Controllers
                 ReceivedAt = model.ReceivedAt,
                 PackagePrice = model.PackagePrice,
                 DeliveryPrice = model.DeliveryPrice,
-                Weight = model.Weight
+                Weight = model.Weight,
+                Description = model.Description
             };
 
             return Ok(response);
@@ -101,6 +102,7 @@ namespace HyperPost.Controllers
                 PackagePrice = request.PackagePrice,
                 DeliveryPrice = request.DeliveryPrice,
                 Weight = request.Weight,
+                Description = request.Description,
             };
 
             await _dbContext.Packages.AddAsync(model);
@@ -118,6 +120,7 @@ namespace HyperPost.Controllers
                 PackagePrice = model.PackagePrice,
                 DeliveryPrice = model.DeliveryPrice,
                 Weight = model.Weight,
+                Description = model.Description
             };
 
             return Created("package", response);

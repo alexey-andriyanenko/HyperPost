@@ -82,6 +82,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var postPackageMessage = new HttpRequestMessage();
@@ -109,6 +110,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(package.Weight, postPackageContent.Weight);
             Assert.Equal(package.PackagePrice, postPackageContent.PackagePrice);
             Assert.Equal(package.DeliveryPrice, postPackageContent.DeliveryPrice);
+            Assert.Equal(package.Description, postPackageContent.Description);
 
             Assert.Null(postPackageContent.ModifiedAt);
             Assert.Null(postPackageContent.SentAt);
@@ -193,6 +195,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
             var postPackageMessage = new HttpRequestMessage();
             postPackageMessage.Method = HttpMethod.Post;
@@ -218,6 +221,12 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(package.Weight, postPackageContent.Weight);
             Assert.Equal(package.PackagePrice, postPackageContent.PackagePrice);
             Assert.Equal(package.DeliveryPrice, postPackageContent.DeliveryPrice);
+            Assert.Equal(package.Description, postPackageContent.Description);
+
+            Assert.Null(postPackageContent.ModifiedAt);
+            Assert.Null(postPackageContent.SentAt);
+            Assert.Null(postPackageContent.ArrivedAt);
+            Assert.Null(postPackageContent.ReceivedAt);
             // create package ↑
 
             // cleanup ↓
@@ -253,6 +262,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
             var message = new HttpRequestMessage();
 
@@ -346,6 +356,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
             var message = new HttpRequestMessage();
 
@@ -389,6 +400,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -441,6 +453,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -501,6 +514,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -577,6 +591,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -665,6 +680,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -745,6 +761,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -830,6 +847,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 100000000.5m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -916,6 +934,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.555m,
                 DeliveryPrice = 5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -1002,6 +1021,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 100000000.5m,
+                Description = "Test package"
             };
             var message = new HttpRequestMessage();
 
@@ -1086,6 +1106,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5.555m,
+                Description = "Test package"
             };
             var message = new HttpRequestMessage();
 
@@ -1167,6 +1188,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 4.99m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -1253,6 +1275,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 100.5m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5.5m,
+                Description = "Test package"
             };
             var message = new HttpRequestMessage();
 
@@ -1337,6 +1360,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.555m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5.5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -1423,6 +1447,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 0.1m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5.5m,
+                Description = "Test package"
             };
 
             var message = new HttpRequestMessage();
@@ -1433,6 +1458,80 @@ namespace HyperPost.Tests.Controllers
                 login.AccessToken
             );
             message.Content = JsonContent.Create(package);
+            message.RequestUri = new Uri("http://localhost:8000/packages");
+
+            var response = await _httpClient.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var db = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var senderUserToRemove = db.Users.Single(u => u.Id == postSenderUserContent.Id);
+                db.Users.Remove(senderUserToRemove);
+                var receiverUserToRemove = db.Users.Single(u => u.Id == postReceiverUserContent.Id);
+                db.Users.Remove(receiverUserToRemove);
+                db.SaveChanges();
+            }
+        }
+
+        [Fact]
+        public async Task POST_CreatesPackageWithDescriptionMoreThan50Characters_ReturnsBadRequest()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
+            // create sender user ↓
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
+            var postSenderUserMessage = new HttpRequestMessage();
+            postSenderUserMessage.Method = HttpMethod.Post;
+            postSenderUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postSenderUserMessage.Content = JsonContent.Create(senderUser);
+            postSenderUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+            var postSenderUserResponse = await _httpClient.SendAsync(postSenderUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postSenderUserResponse.StatusCode);
+            var postSenderUserContent =
+                await postSenderUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postSenderUserContent);
+            // create sender user ↑
+            // create receiver user ↓
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
+            var postReceiverUserMessage = new HttpRequestMessage();
+            postReceiverUserMessage.Method = HttpMethod.Post;
+            postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postReceiverUserMessage.Content = JsonContent.Create(receiverUser);
+            postReceiverUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+            var postReceiverUserResponse = await _httpClient.SendAsync(postReceiverUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postReceiverUserResponse.StatusCode);
+            var postReceiverUserContent =
+                await postReceiverUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postReceiverUserContent);
+            // create receiver user ↑
+            var senderDepartment = DepartmentsHelper.GetDepartmentModel(1);
+            var receiverDepartment = DepartmentsHelper.GetDepartmentModel(2);
+            var package = new CreatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Books,
+                SenderUserId = postSenderUserContent.Id,
+                ReceiverUserId = postReceiverUserContent.Id,
+                SenderDepartmentId = senderDepartment.Id,
+                ReceiverDepartmentId = receiverDepartment.Id,
+                Weight = 1.555m,
+                PackagePrice = 10.5m,
+                DeliveryPrice = 5.5m,
+                Description = new string('d', 51),
+            };
+            var message = new HttpRequestMessage();
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(receiverDepartment);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
             message.RequestUri = new Uri("http://localhost:8000/packages");
 
             var response = await _httpClient.SendAsync(message);
@@ -1517,6 +1616,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.1m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5.5m,
+                Description = "test description"
             };
             var postPackageMessage = new HttpRequestMessage();
 
@@ -1574,6 +1674,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(postPackageContent.ModifiedAt, getPackageContent.ModifiedAt);
             Assert.Equal(postPackageContent.ArrivedAt, getPackageContent.ArrivedAt);
             Assert.Equal(postPackageContent.ReceivedAt, getPackageContent.ReceivedAt);
+            Assert.Equal(postPackageContent.Description, getPackageContent.Description);
             // get package ↑
 
             // cleanup ↓
@@ -1652,6 +1753,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.1m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5.5m,
+                Description = "Test package"
             };
             var postPackageMessage = new HttpRequestMessage();
 
@@ -1709,6 +1811,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(postPackageContent.ModifiedAt, getPackageContent.ModifiedAt);
             Assert.Equal(postPackageContent.ArrivedAt, getPackageContent.ArrivedAt);
             Assert.Equal(postPackageContent.ReceivedAt, getPackageContent.ReceivedAt);
+            Assert.Equal(postPackageContent.Description, getPackageContent.Description);
             // get package ↑
 
             // cleanup ↓
@@ -1785,6 +1888,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 1.1m,
                 PackagePrice = 10.5m,
                 DeliveryPrice = 5.5m,
+                Description = "Test package"
             };
             var postPackageMessage = new HttpRequestMessage();
 
@@ -1842,6 +1946,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(postPackageContent.ModifiedAt, getPackageContent.ModifiedAt);
             Assert.Equal(postPackageContent.ArrivedAt, getPackageContent.ArrivedAt);
             Assert.Equal(postPackageContent.ReceivedAt, getPackageContent.ReceivedAt);
+            Assert.Equal(postPackageContent.Description, getPackageContent.Description);
             // get package ↑
 
             // cleanup ↓
