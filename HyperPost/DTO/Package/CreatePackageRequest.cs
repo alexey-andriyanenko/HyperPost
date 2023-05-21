@@ -1,6 +1,6 @@
 ﻿namespace HyperPost.DTO.Package
 {
-    public class PackageRequest
+    public class CreatePackageRequest
     {
         public int CategoryId { get; set; }
         public int SenderUserId { get; set; }

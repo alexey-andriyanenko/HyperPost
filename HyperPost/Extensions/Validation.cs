@@ -29,7 +29,7 @@ namespace HyperPost.Extensions
                 IValidator<UpdatePackageCategoryRequest>,
                 UpdatePackageCategoryRequestValidator
             >();
-            services.AddScoped<IValidator<PackageRequest>, PackageRequestValidator>();
+            services.AddScoped<IValidator<CreatePackageRequest>, CreatePackageRequestValidator>();
         }
     }
 }

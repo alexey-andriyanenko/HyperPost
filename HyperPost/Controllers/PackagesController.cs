@@ -15,18 +15,48 @@ namespace HyperPost.Controllers
     public class PackagesController : Controller
     {
         private readonly HyperPostDbContext _dbContext;
-        private readonly IValidator<PackageRequest> _packageRequestValidator;
+        private readonly IValidator<CreatePackageRequest> _packageRequestValidator;
 
         public PackagesController(HyperPostDbContext dbContext)
         {
             _dbContext = dbContext;
-            _packageRequestValidator = new PackageRequestValidator();
+            _packageRequestValidator = new CreatePackageRequestValidator();
+        }
+
+        [Authorize]
+        [HttpGet("{id:guid}")]
+        public async Task<ActionResult<PackageResponse>> GetPackageById(Guid id)
+        {
+            var model = await _dbContext.Packages.FindAsync(id);
+            if (model == null)
+                return NotFound();
+
+            var response = new PackageResponse
+            {
+                Id = model.Id,
+                StatusId = model.StatusId,
+                CategoryId = model.CategoryId,
+                SenderUserId = model.SenderUserId,
+                ReceiverUserId = model.ReceiverUserId,
+                SenderDepartmentId = model.SenderDepartmentId,
+                ReceiverDepartmentId = model.ReceiverDepartmentId,
+                CreatedAt = model.CreatedAt,
+                ModifiedAt = model.ModifiedAt,
+                SentAt = model.SentAt,
+                ArrivedAt = model.ArrivedAt,
+                ReceivedAt = model.ReceivedAt,
+                PackagePrice = model.PackagePrice,
+                DeliveryPrice = model.DeliveryPrice,
+                Weight = model.Weight
+            };
+
+            return Ok(response);
         }
 
         [Authorize(Policy = "admin, manager")]
         [HttpPost]
         public async Task<ActionResult<PackageResponse>> CreatePackage(
-            [FromBody] PackageRequest request
+            [FromBody] CreatePackageRequest request
         )
         {
             var validationResult = await _packageRequestValidator.ValidateAsync(request);

@@ -2,9 +2,9 @@
 
 namespace HyperPost.DTO.Package
 {
-    public class PackageRequestValidator : AbstractValidator<PackageRequest>
+    public class CreatePackageRequestValidator : AbstractValidator<CreatePackageRequest>
     {
-        public PackageRequestValidator()
+        public CreatePackageRequestValidator()
         {
             RuleFor(x => x.CategoryId).NotEmpty().WithMessage("CategoryId is required");
 
