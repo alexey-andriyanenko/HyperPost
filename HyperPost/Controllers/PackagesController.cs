@@ -131,8 +131,8 @@ namespace HyperPost.Controllers
         }
 
         [Authorize(Policy = "admin, manager")]
-        [HttpDelete("{id:guid}/archive")]
-        public async Task<ActionResult> ArchivePackage(Guid id)
+        [HttpPatch("{id:guid}/archive")]
+        public async Task<ActionResult<PackageResponse>> ArchivePackage(Guid id)
         {
             var model = await _dbContext.Packages.FindAsync(id);
             if (model == null)
@@ -142,10 +142,11 @@ namespace HyperPost.Controllers
             var archivedStatus = statuses.Select(x => x).Where(x => x.Name == "archived").Single();
 
             model.StatusId = archivedStatus.Id;
+            model.ArchivedAt = DateTime.Now;
 
             await _dbContext.SaveChangesAsync();
 
-            return NoContent();
+            return Ok(_GetPackageResponse(model));
         }
 
         private PackageResponse _GetPackageResponse(PackageModel model)
