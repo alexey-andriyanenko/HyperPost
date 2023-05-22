@@ -16,6 +16,7 @@ namespace HyperPost.DTO.Package
         public DateTime? SentAt { get; set; }
         public DateTime? ArrivedAt { get; set; }
         public DateTime? ReceivedAt { get; set; }
+        public DateTime? ArchivedAt { get; set; }
         public decimal PackagePrice { get; set; }
         public decimal DeliveryPrice { get; set; }
         public decimal Weight { get; set; }

@@ -130,6 +130,24 @@ namespace HyperPost.Controllers
             return Ok(_GetPackageResponse(model));
         }
 
+        [Authorize(Policy = "admin, manager")]
+        [HttpDelete("{id:guid}/archive")]
+        public async Task<ActionResult> ArchivePackage(Guid id)
+        {
+            var model = await _dbContext.Packages.FindAsync(id);
+            if (model == null)
+                return NotFound();
+
+            var statuses = await _dbContext.PackageStatuses.ToListAsync();
+            var archivedStatus = statuses.Select(x => x).Where(x => x.Name == "archived").Single();
+
+            model.StatusId = archivedStatus.Id;
+
+            await _dbContext.SaveChangesAsync();
+
+            return NoContent();
+        }
+
         private PackageResponse _GetPackageResponse(PackageModel model)
         {
             return new PackageResponse
@@ -146,6 +164,7 @@ namespace HyperPost.Controllers
                 SentAt = model.SentAt,
                 ArrivedAt = model.ArrivedAt,
                 ReceivedAt = model.ReceivedAt,
+                ArchivedAt = model.ArchivedAt,
                 PackagePrice = model.PackagePrice,
                 DeliveryPrice = model.DeliveryPrice,
                 Weight = model.Weight,

@@ -116,6 +116,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Null(postPackageContent.SentAt);
             Assert.Null(postPackageContent.ArrivedAt);
             Assert.Null(postPackageContent.ReceivedAt);
+            Assert.Null(postPackageContent.ArchivedAt);
             // create package ↑
 
             // cleanup ↓
@@ -227,6 +228,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Null(postPackageContent.SentAt);
             Assert.Null(postPackageContent.ArrivedAt);
             Assert.Null(postPackageContent.ReceivedAt);
+            Assert.Null(postPackageContent.ArchivedAt);
             // create package ↑
 
             // cleanup ↓
@@ -1674,6 +1676,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(postPackageContent.ModifiedAt, getPackageContent.ModifiedAt);
             Assert.Equal(postPackageContent.ArrivedAt, getPackageContent.ArrivedAt);
             Assert.Equal(postPackageContent.ReceivedAt, getPackageContent.ReceivedAt);
+            Assert.Equal(postPackageContent.ArchivedAt, getPackageContent.ArchivedAt);
             Assert.Equal(postPackageContent.Description, getPackageContent.Description);
             // get package ↑
 
@@ -1811,6 +1814,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(postPackageContent.ModifiedAt, getPackageContent.ModifiedAt);
             Assert.Equal(postPackageContent.ArrivedAt, getPackageContent.ArrivedAt);
             Assert.Equal(postPackageContent.ReceivedAt, getPackageContent.ReceivedAt);
+            Assert.Equal(postPackageContent.ArchivedAt, getPackageContent.ArchivedAt);
             Assert.Equal(postPackageContent.Description, getPackageContent.Description);
             // get package ↑
 
@@ -1946,6 +1950,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(postPackageContent.ModifiedAt, getPackageContent.ModifiedAt);
             Assert.Equal(postPackageContent.ArrivedAt, getPackageContent.ArrivedAt);
             Assert.Equal(postPackageContent.ReceivedAt, getPackageContent.ReceivedAt);
+            Assert.Equal(postPackageContent.ArchivedAt, getPackageContent.ArchivedAt);
             Assert.Equal(postPackageContent.Description, getPackageContent.Description);
             // get package ↑
 
@@ -2115,6 +2120,12 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(putPackage.CategoryId, putPackageContent.CategoryId);
             Assert.Equal(putPackage.Description, putPackageContent.Description);
             Assert.Equal((int)StatusesEnum.Modified, putPackageContent.StatusId);
+
+            Assert.NotNull(putPackageContent.CreatedAt);
+            Assert.NotNull(putPackageContent.ModifiedAt);
+            Assert.Null(putPackageContent.ArrivedAt);
+            Assert.Null(putPackageContent.ReceivedAt);
+            Assert.Null(putPackageContent.ArchivedAt);
             // update package ↑
 
             // cleanup ↓
@@ -2252,6 +2263,12 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(putPackage.CategoryId, putPackageContent.CategoryId);
             Assert.Equal(putPackage.Description, putPackageContent.Description);
             Assert.Equal((int)StatusesEnum.Modified, putPackageContent.StatusId);
+
+            Assert.NotNull(putPackageContent.CreatedAt);
+            Assert.NotNull(putPackageContent.ModifiedAt);
+            Assert.Null(putPackageContent.ArrivedAt);
+            Assert.Null(putPackageContent.ReceivedAt);
+            Assert.Null(putPackageContent.ArchivedAt);
             // update package ↑
 
             // cleanup ↓
