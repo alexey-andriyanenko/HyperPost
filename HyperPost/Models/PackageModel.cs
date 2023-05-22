@@ -19,6 +19,7 @@ namespace HyperPost.Models
         public DateTime? SentAt { get; set; }
         public DateTime? ArrivedAt { get; set; }
         public DateTime? ReceivedAt { get; set; }
+        public DateTime? ArchivedAt { get; set; }
 
         [Column(TypeName = "decimal(8, 2)")]
         public decimal PackagePrice { get; set; }
