@@ -4,6 +4,7 @@ using HyperPost.DTO.Department;
 using HyperPost.DTO.Package;
 using HyperPost.DTO.User;
 using Microsoft.Extensions.DependencyInjection;
+using HyperPost.DTO.Pagination;
 
 namespace HyperPost.Extensions
 {
@@ -31,6 +32,8 @@ namespace HyperPost.Extensions
             >();
             services.AddScoped<IValidator<CreatePackageRequest>, CreatePackageRequestValidator>();
             services.AddScoped<IValidator<UpdatePackageRequest>, UpdatePackageRequestValidator>();
+
+            services.AddScoped<IValidator<PaginationRequest>, PaginationRequestValidator>();
         }
     }
 }

@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using FluentValidation;
 using HyperPost.Models;
 using Microsoft.EntityFrameworkCore;
+using HyperPost.DTO.Pagination;
 
 namespace HyperPost.Controllers
 {
@@ -17,16 +18,19 @@ namespace HyperPost.Controllers
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<CreatePackageRequest> _createPackageRequestValidator;
         private readonly IValidator<UpdatePackageRequest> _updatePackageRequestValidator;
+        private readonly IValidator<PaginationRequest> _paginationRequestValidator;
 
         public PackagesController(
             HyperPostDbContext dbContext,
             IValidator<CreatePackageRequest> createPackageRequestValidator,
-            IValidator<UpdatePackageRequest> updatePackageRequestValidator
+            IValidator<UpdatePackageRequest> updatePackageRequestValidator,
+            IValidator<PaginationRequest> paginationRequestValidator
         )
         {
             _dbContext = dbContext;
             _createPackageRequestValidator = createPackageRequestValidator;
             _updatePackageRequestValidator = updatePackageRequestValidator;
+            _paginationRequestValidator = paginationRequestValidator;
         }
 
         [Authorize]
@@ -38,6 +42,35 @@ namespace HyperPost.Controllers
                 return NotFound();
 
             return Ok(_GetPackageResponse(model));
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<PaginationResponse<PackageResponse>>> GetPackages(
+            [FromQuery] PaginationRequest paginationRequest
+        )
+        {
+            var validationResult = await _paginationRequestValidator.ValidateAsync(
+                paginationRequest
+            );
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var query = _dbContext.Packages.AsQueryable();
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / paginationRequest.Limit);
+            var models = await query
+                .Skip(paginationRequest.Limit * (paginationRequest.Page - 1))
+                .Take(paginationRequest.Limit)
+                .ToListAsync();
+            var response = new PaginationResponse<PackageResponse>
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = models.Select(_GetPackageResponse).ToList()
+            };
+
+            return Ok(response);
         }
 
         [Authorize(Policy = "admin, manager")]
@@ -80,6 +113,7 @@ namespace HyperPost.Controllers
             var model = new PackageModel
             {
                 StatusId = createdStatus.Id,
+                CategoryId = request.CategoryId,
                 CreatedAt = DateTime.Now,
                 SenderUserId = request.SenderUserId,
                 ReceiverUserId = request.ReceiverUserId,

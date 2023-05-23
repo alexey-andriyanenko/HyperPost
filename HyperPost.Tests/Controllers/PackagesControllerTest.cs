@@ -1,10 +1,12 @@
 ﻿using HyperPost.DB;
 using HyperPost.DTO.Package;
+using HyperPost.DTO.Pagination;
 using HyperPost.DTO.User;
 using HyperPost.Migrations;
 using HyperPost.Shared;
 using HyperPost.Tests.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 using System.Net;
 using System.Net.Http.Headers;
@@ -103,6 +105,7 @@ namespace HyperPost.Tests.Controllers
             Assert.NotNull(postPackageContent);
 
             Assert.Equal((int)StatusesEnum.Created, postPackageContent.StatusId);
+            Assert.Equal(package.CategoryId, postPackageContent.CategoryId);
             Assert.Equal(package.SenderUserId, postPackageContent.SenderUserId);
             Assert.Equal(package.ReceiverUserId, postPackageContent.ReceiverUserId);
             Assert.Equal(package.SenderDepartmentId, postPackageContent.SenderDepartmentId);
@@ -160,7 +163,7 @@ namespace HyperPost.Tests.Controllers
             var postSenderUserContent =
                 await postSenderUserResponse.Content.ReadFromJsonAsync<UserResponse>();
             Assert.NotNull(postSenderUserContent);
-            // create and ger sender ↑
+            // createsender ↑
 
             // create receiver ↓
             var recieverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
@@ -215,6 +218,7 @@ namespace HyperPost.Tests.Controllers
             Assert.NotNull(postPackageContent);
 
             Assert.Equal((int)StatusesEnum.Created, postPackageContent.StatusId);
+            Assert.Equal(package.CategoryId, postPackageContent.CategoryId);
             Assert.Equal(package.SenderUserId, postPackageContent.SenderUserId);
             Assert.Equal(package.ReceiverUserId, postPackageContent.ReceiverUserId);
             Assert.Equal(package.SenderDepartmentId, postPackageContent.SenderDepartmentId);
@@ -2797,6 +2801,202 @@ namespace HyperPost.Tests.Controllers
 
             var patchPackageResponse = await _httpClient.SendAsync(patchPackageMessage);
             Assert.Equal(HttpStatusCode.NotFound, patchPackageResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AnonymousGetsPackages_ReturnsUnauthorized()
+        {
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/packages",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+
+            var getPackagesResponse = await _httpClient.GetAsync(url);
+            Assert.Equal(HttpStatusCode.Unauthorized, getPackagesResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_GetsPackagesWithInvalidParams_ReturnsBadRequest()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 0, Limit = 0 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/packages",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getPackagesMessage = new HttpRequestMessage();
+            getPackagesMessage.Method = HttpMethod.Get;
+            getPackagesMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getPackagesMessage.RequestUri = new Uri(url);
+            var getPackagesResponse = await _httpClient.SendAsync(getPackagesMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, getPackagesResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_GetsEmptyPackagesList_ReturnsOk()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/packages",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getPackagesMessage = new HttpRequestMessage();
+            getPackagesMessage.Method = HttpMethod.Get;
+            getPackagesMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getPackagesMessage.RequestUri = new Uri(url);
+            var getPackagesResponse = await _httpClient.SendAsync(getPackagesMessage);
+            Assert.Equal(HttpStatusCode.OK, getPackagesResponse.StatusCode);
+
+            var getPackagesContent = await getPackagesResponse.Content.ReadFromJsonAsync<
+                PaginationResponse<PackageResponse>
+            >();
+            Assert.NotNull(getPackagesContent);
+            Assert.Equal(0, getPackagesContent.TotalCount);
+            Assert.Equal(0, getPackagesContent.TotalPages);
+            Assert.Empty(getPackagesContent.List);
+        }
+
+        [Fact]
+        public async Task GET_GetsPackagesList_ReturnsOk()
+        {
+            var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            // create sender user ↓
+            var senderUser = UsersHelper.GetUserRequest(TestUsersEnum.SenderClient);
+            var postSenderUserMessage = new HttpRequestMessage();
+
+            postSenderUserMessage.Method = HttpMethod.Post;
+            postSenderUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postSenderUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+            postSenderUserMessage.Content = JsonContent.Create(senderUser);
+
+            var postSenderUserResponse = await _httpClient.SendAsync(postSenderUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postSenderUserResponse.StatusCode);
+
+            var postSenderUserContent =
+                await postSenderUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postSenderUserContent);
+            // create sender user ↑
+
+            // create receiver user ↓
+            var receiverUser = UsersHelper.GetUserRequest(TestUsersEnum.ReceiverClient);
+            var postReceiverUserMessage = new HttpRequestMessage();
+
+            postReceiverUserMessage.Method = HttpMethod.Post;
+            postReceiverUserMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postReceiverUserMessage.RequestUri = new Uri("http://localhost:8000/users");
+            postReceiverUserMessage.Content = JsonContent.Create(receiverUser);
+
+            var postReceiverUserResponse = await _httpClient.SendAsync(postReceiverUserMessage);
+            Assert.Equal(HttpStatusCode.OK, postReceiverUserResponse.StatusCode);
+
+            var postReceiverUserContent =
+                await postReceiverUserResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(postReceiverUserContent);
+            // create receiver user ↑
+
+            var senderDepartment = DepartmentsHelper.GetDepartmentModel(1);
+            var receiverDepartment = DepartmentsHelper.GetDepartmentModel(2);
+
+            // create package ↓
+            var package = new CreatePackageRequest
+            {
+                CategoryId = (int)CategoriesEnum.Money,
+                SenderUserId = postSenderUserContent.Id,
+                ReceiverUserId = postReceiverUserContent.Id,
+                SenderDepartmentId = senderDepartment.Id,
+                ReceiverDepartmentId = receiverDepartment.Id,
+                Weight = 1.5m,
+                PackagePrice = 100m,
+                DeliveryPrice = 10m,
+                Description = "Test package",
+            };
+            var postPackageMessage = new HttpRequestMessage();
+
+            postPackageMessage.Method = HttpMethod.Post;
+            postPackageMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            postPackageMessage.RequestUri = new Uri("http://localhost:8000/packages");
+            postPackageMessage.Content = JsonContent.Create(package);
+
+            var postPackageResponse = await _httpClient.SendAsync(postPackageMessage);
+            Assert.Equal(HttpStatusCode.Created, postPackageResponse.StatusCode);
+
+            var postPackageContent =
+                await postPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
+            Assert.NotNull(postPackageContent);
+            // create package ↑
+
+            // get packages ↓
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/packages",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getPackagesMessage = new HttpRequestMessage();
+            getPackagesMessage.Method = HttpMethod.Get;
+            getPackagesMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getPackagesMessage.RequestUri = new Uri(url);
+            var getPackagesResponse = await _httpClient.SendAsync(getPackagesMessage);
+            Assert.Equal(HttpStatusCode.OK, getPackagesResponse.StatusCode);
+            var getPackagesContent = await getPackagesResponse.Content.ReadFromJsonAsync<
+                PaginationResponse<PackageResponse>
+            >();
+            Assert.NotNull(getPackagesContent);
+            Assert.Equal(1, getPackagesContent.TotalCount);
+            Assert.Equal(1, getPackagesContent.TotalPages);
+            Assert.Single(getPackagesContent.List);
+            // get packages ↑
+
+            // cleanup ↓
+            using (var scope = _factory.Services.CreateScope())
+            {
+                var dbContext = scope.ServiceProvider.GetRequiredService<HyperPostDbContext>();
+                var senderToRemove = dbContext.Users.Single(u => u.Id == postSenderUserContent.Id);
+                dbContext.Users.Remove(senderToRemove);
+                var receiverToRemove = dbContext.Users.Single(
+                    u => u.Id == postReceiverUserContent.Id
+                );
+                dbContext.Users.Remove(receiverToRemove);
+                var packageToRemove = dbContext.Packages.Single(p => p.Id == postPackageContent.Id);
+                dbContext.Packages.Remove(packageToRemove);
+                dbContext.SaveChanges();
+            }
         }
     }
 }
