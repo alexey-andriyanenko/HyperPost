@@ -6,6 +6,10 @@ using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using EntityFramework.Exceptions.Common;
 using FluentValidation;
+using HyperPost.DTO.Pagination;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using Azure;
 
 namespace HyperPost.Controllers
 {
@@ -15,16 +19,19 @@ namespace HyperPost.Controllers
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<CreateDepartmentRequest> _createDepartmentRequestValidator;
         private readonly IValidator<UpdateDepartmentRequest> _updateDepartmentRequestValidator;
+        private readonly IValidator<PaginationRequest> _paginationRequestValidator;
 
         public DepartmentsController(
             HyperPostDbContext dbContext,
             IValidator<CreateDepartmentRequest> createDepartmentRequestValidator,
-            IValidator<UpdateDepartmentRequest> updateDepartmentRequestValidator
+            IValidator<UpdateDepartmentRequest> updateDepartmentRequestValidator,
+            IValidator<PaginationRequest> paginationRequestValidator
         )
         {
             _dbContext = dbContext;
             _createDepartmentRequestValidator = createDepartmentRequestValidator;
             _updateDepartmentRequestValidator = updateDepartmentRequestValidator;
+            _paginationRequestValidator = paginationRequestValidator;
         }
 
         [Authorize]
@@ -35,11 +42,34 @@ namespace HyperPost.Controllers
             if (model == null)
                 return NotFound();
 
-            var response = new DepartmentResponse
+            return Ok(_GetDepartmentResponse(model));
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<PaginationResponse<DepartmentResponse>>> GetDepartments(
+            [FromQuery] PaginationRequest paginationRequest
+        )
+        {
+            var validationResult = await _paginationRequestValidator.ValidateAsync(
+                paginationRequest
+            );
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var query = _dbContext.Departments.AsQueryable();
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)System.Math.Ceiling((double)totalCount / paginationRequest.Limit);
+            var list = await query
+                .Skip((paginationRequest.Page - 1) * paginationRequest.Limit)
+                .Take(paginationRequest.Limit)
+                .ToListAsync();
+
+            var response = new PaginationResponse<DepartmentResponse>
             {
-                Id = model.Id,
-                Number = model.Number,
-                FullAddress = model.FullAddress
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = list.Select(_GetDepartmentResponse).ToList()
             };
 
             return Ok(response);
@@ -75,14 +105,7 @@ namespace HyperPost.Controllers
                 return BadRequest(ex.Message);
             }
 
-            var response = new DepartmentResponse
-            {
-                Id = model.Id,
-                Number = model.Number,
-                FullAddress = model.FullAddress
-            };
-
-            return Created("department", response);
+            return Created("department", _GetDepartmentResponse(model));
         }
 
         [Authorize(Policy = "admin, manager")]
@@ -115,14 +138,7 @@ namespace HyperPost.Controllers
                 return BadRequest(ex.Message);
             }
 
-            var response = new DepartmentResponse
-            {
-                Id = model.Id,
-                Number = model.Number,
-                FullAddress = model.FullAddress
-            };
-
-            return Ok(response);
+            return Ok(_GetDepartmentResponse(model));
         }
 
         [Authorize(Policy = "admin")]
@@ -137,6 +153,16 @@ namespace HyperPost.Controllers
             await _dbContext.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private DepartmentResponse _GetDepartmentResponse(DepartmentModel model)
+        {
+            return new DepartmentResponse
+            {
+                Id = model.Id,
+                Number = model.Number,
+                FullAddress = model.FullAddress
+            };
         }
     }
 }

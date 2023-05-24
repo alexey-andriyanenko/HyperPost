@@ -7,6 +7,8 @@ using System.Net.Http.Headers;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using HyperPost.DB;
+using HyperPost.DTO.Pagination;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace HyperPost.Tests.Controllers
 {
@@ -876,6 +878,167 @@ namespace HyperPost.Tests.Controllers
 
             var deleteResponse = await _client.SendAsync(deleteMessage);
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AnonymousGetsDepartments_ReturnsUnauthorized()
+        {
+            var getMessage = new HttpRequestMessage();
+            getMessage.Method = HttpMethod.Get;
+            getMessage.RequestUri = new Uri("http://localhost:8000/departments");
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.Unauthorized, getResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_GetsDepartmentWithInvalidParams_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 0, Limit = 0 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/departments",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, getResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_GetsEmptyDepartmentsList_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 3, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/departments",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            var getContent = await getResponse.Content.ReadFromJsonAsync<
+                PaginationResponse<DepartmentResponse>
+            >();
+
+            Assert.NotNull(getContent);
+            Assert.Equal(10, getContent.TotalCount);
+            Assert.Equal(1, getContent.TotalPages);
+            Assert.Empty(getContent.List);
+        }
+
+        [Fact]
+        public async Task GET_AdminGetsDepartmentsList_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/departments",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            var getContent = await getResponse.Content.ReadFromJsonAsync<
+                PaginationResponse<DepartmentResponse>
+            >();
+            Assert.NotNull(getContent);
+            Assert.Equal(10, getContent.TotalCount);
+            Assert.Equal(1, getContent.TotalPages);
+            Assert.Equal(10, getContent.List.Count);
+        }
+
+        [Fact]
+        public async Task GET_ManagerGetsDepartmentsList_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/departments",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            var getContent = await getResponse.Content.ReadFromJsonAsync<
+                PaginationResponse<DepartmentResponse>
+            >();
+            Assert.NotNull(getContent);
+            Assert.Equal(10, getContent.TotalCount);
+            Assert.Equal(1, getContent.TotalPages);
+            Assert.Equal(10, getContent.List.Count);
+        }
+
+        [Fact]
+        public async Task GET_ClientGetsDepartmentsList_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/departments",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+            var getContent = await getResponse.Content.ReadFromJsonAsync<
+                PaginationResponse<DepartmentResponse>
+            >();
+            Assert.NotNull(getContent);
+            Assert.Equal(10, getContent.TotalCount);
+            Assert.Equal(1, getContent.TotalPages);
+            Assert.Equal(10, getContent.List.Count);
         }
     }
 }
