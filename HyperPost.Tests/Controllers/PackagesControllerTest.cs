@@ -104,7 +104,7 @@ namespace HyperPost.Tests.Controllers
                 await postPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
             Assert.NotNull(postPackageContent);
 
-            Assert.Equal((int)StatusesEnum.Created, postPackageContent.StatusId);
+            Assert.Equal((int)PackageStatusesEnum.Created, postPackageContent.StatusId);
             Assert.Equal(package.CategoryId, postPackageContent.CategoryId);
             Assert.Equal(package.SenderUserId, postPackageContent.SenderUserId);
             Assert.Equal(package.ReceiverUserId, postPackageContent.ReceiverUserId);
@@ -217,7 +217,7 @@ namespace HyperPost.Tests.Controllers
                 await postPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
             Assert.NotNull(postPackageContent);
 
-            Assert.Equal((int)StatusesEnum.Created, postPackageContent.StatusId);
+            Assert.Equal((int)PackageStatusesEnum.Created, postPackageContent.StatusId);
             Assert.Equal(package.CategoryId, postPackageContent.CategoryId);
             Assert.Equal(package.SenderUserId, postPackageContent.SenderUserId);
             Assert.Equal(package.ReceiverUserId, postPackageContent.ReceiverUserId);
@@ -2123,7 +2123,7 @@ namespace HyperPost.Tests.Controllers
 
             Assert.Equal(putPackage.CategoryId, putPackageContent.CategoryId);
             Assert.Equal(putPackage.Description, putPackageContent.Description);
-            Assert.Equal((int)StatusesEnum.Modified, putPackageContent.StatusId);
+            Assert.Equal((int)PackageStatusesEnum.Modified, putPackageContent.StatusId);
 
             Assert.NotNull(putPackageContent.CreatedAt);
             Assert.NotNull(putPackageContent.ModifiedAt);
@@ -2266,7 +2266,7 @@ namespace HyperPost.Tests.Controllers
 
             Assert.Equal(putPackage.CategoryId, putPackageContent.CategoryId);
             Assert.Equal(putPackage.Description, putPackageContent.Description);
-            Assert.Equal((int)StatusesEnum.Modified, putPackageContent.StatusId);
+            Assert.Equal((int)PackageStatusesEnum.Modified, putPackageContent.StatusId);
 
             Assert.NotNull(putPackageContent.CreatedAt);
             Assert.NotNull(putPackageContent.ModifiedAt);
@@ -2605,7 +2605,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(postPackageContent.SentAt, postPackageContent.SentAt);
             Assert.Equal(postPackageContent.ReceivedAt, postPackageContent.ReceivedAt);
 
-            Assert.Equal((int)StatusesEnum.Archived, patchPackageContent.StatusId);
+            Assert.Equal((int)PackageStatusesEnum.Archived, patchPackageContent.StatusId);
             Assert.NotNull(patchPackageContent.ArchivedAt);
             // archive package ↑
 
@@ -2747,7 +2747,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(postPackageContent.SentAt, postPackageContent.SentAt);
             Assert.Equal(postPackageContent.ReceivedAt, postPackageContent.ReceivedAt);
 
-            Assert.Equal((int)StatusesEnum.Archived, patchPackageContent.StatusId);
+            Assert.Equal((int)PackageStatusesEnum.Archived, patchPackageContent.StatusId);
             Assert.NotNull(patchPackageContent.ArchivedAt);
             // archive package ↑
 

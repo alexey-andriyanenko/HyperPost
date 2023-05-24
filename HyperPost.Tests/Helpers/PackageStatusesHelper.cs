@@ -2,7 +2,7 @@
 
 namespace HyperPost.Tests.Helpers
 {
-    public enum StatusesEnum
+    public enum PackageStatusesEnum
     {
         Created = 1,
         Sent = 2,
@@ -12,9 +12,9 @@ namespace HyperPost.Tests.Helpers
         Modified = 6,
     }
 
-    public static class StatusesHelper
+    public static class PackageStatusesHelper
     {
-        public static PackageStatusModel GetPackageStatusModel(StatusesEnum statusType)
+        public static PackageStatusModel GetPackageStatusModel(PackageStatusesEnum statusType)
         {
             var status = new PackageStatusModel { Id = (int)statusType, };
             switch ((int)statusType)
