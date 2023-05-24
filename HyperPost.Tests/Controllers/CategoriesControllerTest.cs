@@ -3,9 +3,11 @@ using System.Net.Http.Headers;
 using System.Net.Http.Json;
 using HyperPost.DB;
 using HyperPost.DTO.PackageCategory;
+using HyperPost.DTO.Pagination;
 using HyperPost.Shared;
 using HyperPost.Tests.Helpers;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace HyperPost.Tests.Controllers
@@ -796,6 +798,175 @@ namespace HyperPost.Tests.Controllers
                 db.PackageCategoties.Remove(model);
                 await db.SaveChangesAsync();
             }
+        }
+
+        [Fact]
+        public async Task GET_AnonymousGetsCategories_ReturnsUnauthorized()
+        {
+            var message = new HttpRequestMessage();
+            message.Method = HttpMethod.Get;
+            message.RequestUri = new Uri("http://localhost:8000/package/categories");
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_GetsCategoriesWithInvalidParams_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 0, Limit = 0 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/package/categories",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(url);
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_GetsEmptyCategoriesList_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 3, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/package/categories",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var message = new HttpRequestMessage();
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(url);
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadFromJsonAsync<
+                PaginationResponse<PackageCategoryResponse>
+            >();
+            Assert.NotNull(content);
+            Assert.Equal(11, content.TotalCount);
+            Assert.Equal(2, content.TotalPages);
+            Assert.Empty(content.List);
+        }
+
+        [Fact]
+        public async Task Admin_GetsCategoriesList_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/package/categories",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(url);
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<
+                PaginationResponse<PackageCategoryResponse>
+            >();
+            Assert.NotNull(content);
+            Assert.Equal(11, content.TotalCount);
+            Assert.Equal(2, content.TotalPages);
+            Assert.Equal(10, content.List.Count);
+        }
+
+        [Fact]
+        public async Task Manager_GetsCategoriesList_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/package/categories",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(url);
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadFromJsonAsync<
+                PaginationResponse<PackageCategoryResponse>
+            >();
+
+            Assert.NotNull(content);
+            Assert.Equal(11, content.TotalCount);
+            Assert.Equal(2, content.TotalPages);
+            Assert.Equal(10, content.List.Count);
+        }
+
+        [Fact]
+        public async Task Client_GetsCategoriesList_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/package/categories",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(url);
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<
+                PaginationResponse<PackageCategoryResponse>
+            >();
+            Assert.NotNull(content);
+            Assert.Equal(11, content.TotalCount);
+            Assert.Equal(2, content.TotalPages);
+            Assert.Equal(10, content.List.Count);
         }
     }
 }

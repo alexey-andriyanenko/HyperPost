@@ -8,6 +8,10 @@ using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using EntityFramework.Exceptions.Common;
 using HyperPost.DTO.Package;
+using HyperPost.DTO.Pagination;
+using Microsoft.EntityFrameworkCore;
+using System.Linq;
+using System;
 
 namespace HyperPost.Controllers
 {
@@ -17,16 +21,19 @@ namespace HyperPost.Controllers
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<CreatePackageCategoryRequest> _categoryRequestValidator;
         private readonly IValidator<UpdatePackageCategoryRequest> _updateCategoryRequestValidator;
+        private readonly IValidator<PaginationRequest> _paginationRequestValidator;
 
         public CategoriesController(
             HyperPostDbContext dbContext,
             IValidator<CreatePackageCategoryRequest> categoryRequestValidator,
-            IValidator<UpdatePackageCategoryRequest> updateCategoryRequestValidator
+            IValidator<UpdatePackageCategoryRequest> updateCategoryRequestValidator,
+            IValidator<PaginationRequest> paginationRequestValidator
         )
         {
             _dbContext = dbContext;
             _categoryRequestValidator = categoryRequestValidator;
             _updateCategoryRequestValidator = updateCategoryRequestValidator;
+            _paginationRequestValidator = paginationRequestValidator;
         }
 
         [Authorize]
@@ -37,7 +44,35 @@ namespace HyperPost.Controllers
             if (model == null)
                 return NotFound();
 
-            var response = new PackageCategoryResponse { Id = model.Id, Name = model.Name };
+            return Ok(_GetPackageCategoryResponse(model));
+        }
+
+        [Authorize]
+        [HttpGet]
+        public async Task<ActionResult<PaginationResponse<PackageCategoryResponse>>> GetCategories(
+            [FromRoute] PaginationRequest paginationRequest
+        )
+        {
+            var validationResult = await _paginationRequestValidator.ValidateAsync(
+                paginationRequest
+            );
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var query = _dbContext.PackageCategoties.AsQueryable();
+            var totalCount = await query.CountAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / paginationRequest.Limit);
+            var list = await query
+                .Skip((paginationRequest.Page - 1) * paginationRequest.Limit)
+                .Take(paginationRequest.Limit)
+                .ToListAsync();
+            var response = new PaginationResponse<PackageCategoryResponse>
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = list.Select(_GetPackageCategoryResponse).ToList()
+            };
+
             return Ok(response);
         }
 
@@ -67,8 +102,7 @@ namespace HyperPost.Controllers
                 return BadRequest(ex.Message);
             }
 
-            var response = new PackageCategoryResponse { Id = model.Id, Name = model.Name };
-            return Created("category", response);
+            return Created("category", _GetPackageCategoryResponse(model));
         }
 
         [Authorize(Policy = "admin")]
@@ -102,8 +136,7 @@ namespace HyperPost.Controllers
                 return BadRequest(ex.Message);
             }
 
-            var response = new PackageCategoryResponse { Id = model.Id, Name = model.Name };
-            return Ok(response);
+            return Ok(_GetPackageCategoryResponse(model));
         }
 
         [Authorize(Policy = "admin")]
@@ -118,6 +151,11 @@ namespace HyperPost.Controllers
             await _dbContext.SaveChangesAsync();
 
             return NoContent();
+        }
+
+        private PackageCategoryResponse _GetPackageCategoryResponse(PackageCategoryModel model)
+        {
+            return new PackageCategoryResponse { Id = model.Id, Name = model.Name };
         }
     }
 }
