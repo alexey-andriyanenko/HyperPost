@@ -16,14 +16,14 @@ using System;
 namespace HyperPost.Controllers
 {
     [Route("/package/categories")]
-    public class CategoriesController : Controller
+    public class PackageCategoriesController : Controller
     {
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<CreatePackageCategoryRequest> _categoryRequestValidator;
         private readonly IValidator<UpdatePackageCategoryRequest> _updateCategoryRequestValidator;
         private readonly IValidator<PaginationRequest> _paginationRequestValidator;
 
-        public CategoriesController(
+        public PackageCategoriesController(
             HyperPostDbContext dbContext,
             IValidator<CreatePackageCategoryRequest> categoryRequestValidator,
             IValidator<UpdatePackageCategoryRequest> updateCategoryRequestValidator,

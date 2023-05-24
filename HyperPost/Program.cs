@@ -26,7 +26,6 @@ namespace HyperPost
             var app = builder.Build();
 
             app.MapControllers();
-
             app.Run();
         }
     }

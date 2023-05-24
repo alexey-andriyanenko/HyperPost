@@ -2,7 +2,7 @@
 
 namespace HyperPost.Tests.Helpers
 {
-    public enum CategoriesEnum
+    public enum PackageCategoriesEnum
     {
         NonExistent,
         Food,
@@ -17,9 +17,11 @@ namespace HyperPost.Tests.Helpers
         Computers,
     }
 
-    public static class CategoriesHelper
+    public static class PackageCategoriesHelper
     {
-        public static PackageCategoryModel GetPackageCategoryModel(CategoriesEnum categoryType)
+        public static PackageCategoryModel GetPackageCategoryModel(
+            PackageCategoriesEnum categoryType
+        )
         {
             var category = new PackageCategoryModel { Id = (int)categoryType, };
 

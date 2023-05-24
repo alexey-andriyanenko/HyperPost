@@ -76,7 +76,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -191,7 +191,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -260,7 +260,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = 55,
                 ReceiverUserId = 56,
                 SenderDepartmentId = 57,
@@ -398,7 +398,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = 0,
                 ReceiverUserId = 56,
                 SenderDepartmentId = 57,
@@ -451,7 +451,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = 0,
                 SenderDepartmentId = 57,
@@ -512,7 +512,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postSenderUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -589,7 +589,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -678,7 +678,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = 0,
@@ -759,7 +759,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -845,7 +845,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -932,7 +932,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1019,7 +1019,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1104,7 +1104,7 @@ namespace HyperPost.Tests.Controllers
             var receiverDepartment = DepartmentsHelper.GetDepartmentModel(2);
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1186,7 +1186,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1273,7 +1273,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1358,7 +1358,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1445,7 +1445,7 @@ namespace HyperPost.Tests.Controllers
 
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1521,7 +1521,7 @@ namespace HyperPost.Tests.Controllers
             var receiverDepartment = DepartmentsHelper.GetDepartmentModel(2);
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1614,7 +1614,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1752,7 +1752,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -1888,7 +1888,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -2053,7 +2053,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var postPackage = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -2084,7 +2084,7 @@ namespace HyperPost.Tests.Controllers
             // update package ↓
             var putPackage = new UpdatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Clothes,
+                CategoryId = (int)PackageCategoriesEnum.Clothes,
                 Description = "Updated test package"
             };
             var putPackageMessage = new HttpRequestMessage();
@@ -2197,7 +2197,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var postPackage = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -2228,7 +2228,7 @@ namespace HyperPost.Tests.Controllers
             // update package ↓
             var putPackage = new UpdatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Clothes,
+                CategoryId = (int)PackageCategoriesEnum.Clothes,
                 Description = "Updated test package"
             };
             var putPackageMessage = new HttpRequestMessage();
@@ -2296,7 +2296,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Client);
             var putPackage = new UpdatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Clothes,
+                CategoryId = (int)PackageCategoriesEnum.Clothes,
                 Description = "Updated test package"
             };
 
@@ -2320,7 +2320,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
             var putPackage = new UpdatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Clothes,
+                CategoryId = (int)PackageCategoriesEnum.Clothes,
                 Description = "Updated test package with description more than 50 characters"
             };
             var message = new HttpRequestMessage();
@@ -2395,7 +2395,7 @@ namespace HyperPost.Tests.Controllers
                 Weight = 5m,
                 PackagePrice = 5m,
                 DeliveryPrice = 10m,
-                CategoryId = (int)CategoriesEnum.Clothes,
+                CategoryId = (int)PackageCategoriesEnum.Clothes,
                 Description = "Test package"
             };
             var postPackageMessage = new HttpRequestMessage();
@@ -2458,7 +2458,7 @@ namespace HyperPost.Tests.Controllers
             var login = await _httpClient.LoginViaEmailAs(UserRolesEnum.Manager);
             var putPackage = new UpdatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Clothes,
+                CategoryId = (int)PackageCategoriesEnum.Clothes,
                 Description = "Updated test package"
             };
             var message = new HttpRequestMessage();
@@ -2536,7 +2536,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -2678,7 +2678,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Books,
+                CategoryId = (int)PackageCategoriesEnum.Books,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -2927,7 +2927,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Money,
+                CategoryId = (int)PackageCategoriesEnum.Money,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -3050,7 +3050,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Money,
+                CategoryId = (int)PackageCategoriesEnum.Money,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,
@@ -3174,7 +3174,7 @@ namespace HyperPost.Tests.Controllers
             // create package ↓
             var package = new CreatePackageRequest
             {
-                CategoryId = (int)CategoriesEnum.Money,
+                CategoryId = (int)PackageCategoriesEnum.Money,
                 SenderUserId = postSenderUserContent.Id,
                 ReceiverUserId = postReceiverUserContent.Id,
                 SenderDepartmentId = senderDepartment.Id,

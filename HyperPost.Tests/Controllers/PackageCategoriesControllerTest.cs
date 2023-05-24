@@ -12,12 +12,12 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace HyperPost.Tests.Controllers
 {
-    public class CategoriesControllerTest : IClassFixture<HyperPostTestFactory<Program>>
+    public class PackageCategoriesControllerTest : IClassFixture<HyperPostTestFactory<Program>>
     {
         private readonly HyperPostTestFactory<Program> _factory;
         private readonly HttpClient _client;
 
-        public CategoriesControllerTest(HyperPostTestFactory<Program> factory)
+        public PackageCategoriesControllerTest(HyperPostTestFactory<Program> factory)
         {
             _factory = factory;
             _client = factory.CreateClient();
@@ -535,7 +535,7 @@ namespace HyperPost.Tests.Controllers
                 login.AccessToken
             );
             putMessage.RequestUri = new Uri(
-                $"http://localhost:8000/package/categories/{CategoriesEnum.NonExistent}"
+                $"http://localhost:8000/package/categories/{PackageCategoriesEnum.NonExistent}"
             );
 
             var putResponse = await _client.SendAsync(putMessage);
@@ -546,7 +546,9 @@ namespace HyperPost.Tests.Controllers
         public async Task GET_AdminGetsCategory_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
-            var existingCategory = CategoriesHelper.GetPackageCategoryModel(CategoriesEnum.Books);
+            var existingCategory = PackageCategoriesHelper.GetPackageCategoryModel(
+                PackageCategoriesEnum.Books
+            );
 
             var message = new HttpRequestMessage();
 
@@ -572,7 +574,9 @@ namespace HyperPost.Tests.Controllers
         public async Task GET_ManagerGetsCategory_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
-            var existingCategory = CategoriesHelper.GetPackageCategoryModel(CategoriesEnum.Books);
+            var existingCategory = PackageCategoriesHelper.GetPackageCategoryModel(
+                PackageCategoriesEnum.Books
+            );
 
             var message = new HttpRequestMessage();
 
@@ -598,7 +602,9 @@ namespace HyperPost.Tests.Controllers
         public async Task GET_ClientGetsCategory_ReturnsOk()
         {
             var login = await _client.LoginViaEmailAs(UserRolesEnum.Client);
-            var existingCategory = CategoriesHelper.GetPackageCategoryModel(CategoriesEnum.Books);
+            var existingCategory = PackageCategoriesHelper.GetPackageCategoryModel(
+                PackageCategoriesEnum.Books
+            );
 
             var message = new HttpRequestMessage();
 
@@ -631,7 +637,7 @@ namespace HyperPost.Tests.Controllers
                 login.AccessToken
             );
             message.RequestUri = new Uri(
-                $"http://localhost:8000/package/categories/{CategoriesEnum.NonExistent}"
+                $"http://localhost:8000/package/categories/{PackageCategoriesEnum.NonExistent}"
             );
 
             var response = await _client.SendAsync(message);
