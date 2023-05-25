@@ -2,6 +2,8 @@
 using FluentValidation;
 using FluentValidation.Validators;
 using HyperPost.DB;
+using HyperPost.DTO.Package;
+using HyperPost.DTO.Pagination;
 using HyperPost.DTO.User;
 using HyperPost.Models;
 using HyperPost.Services;
@@ -26,16 +28,19 @@ namespace HyperPost.Controllers
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<CreateUserRequest> _createUserRequestValidator;
         private readonly IValidator<UpdateUserRequest> _updateUserRequestValidator;
+        private readonly IValidator<PaginationRequest> _paginationRequestValidator;
 
         public UsersController(
             HyperPostDbContext dbContext,
             IValidator<CreateUserRequest> createUserRequestValidator,
-            IValidator<UpdateUserRequest> updateUserRequestValidator
+            IValidator<UpdateUserRequest> updateUserRequestValidator,
+            IValidator<PaginationRequest> paginationRequestValidator
         )
         {
             _dbContext = dbContext;
             _createUserRequestValidator = createUserRequestValidator;
             _updateUserRequestValidator = updateUserRequestValidator;
+            _paginationRequestValidator = paginationRequestValidator;
         }
 
         [HttpPost("login/email")]
@@ -119,6 +124,47 @@ namespace HyperPost.Controllers
             }
 
             return Ok(_GetUserResponse(user));
+        }
+
+        [Authorize(Policy = "admin, manager")]
+        [HttpGet]
+        public async Task<ActionResult<PaginationResponse<UserResponse>>> GetUsers(
+            [FromRoute] PaginationRequest paginationRequest
+        )
+        {
+            /* Description ↓
+             * Admins can access all users
+             * Managers can acess only client users
+             */
+
+            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+
+            var validationResult = await _paginationRequestValidator.ValidateAsync(
+                paginationRequest
+            );
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var query = _dbContext.Users.AsQueryable();
+            var models = await query
+                .Skip(paginationRequest.Limit * (paginationRequest.Page - 1))
+                .Take(paginationRequest.Limit)
+                .ToListAsync();
+
+            if (role == "manager")
+                models = models.Where(u => u.RoleId == (int)UserRolesEnum.Client).ToList();
+
+            var totalCount = models.Count();
+            var totalPages = (int)Math.Ceiling((double)totalCount / paginationRequest.Limit);
+
+            var response = new PaginationResponse<UserResponse>
+            {
+                TotalCount = totalCount,
+                TotalPages = totalPages,
+                List = models.Select(_GetUserResponse).ToList()
+            };
+
+            return Ok(response);
         }
 
         [Authorize(Policy = "admin, manager")]

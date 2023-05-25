@@ -7,6 +7,9 @@ using Microsoft.AspNetCore.Authentication.JwtBearer;
 using System.Net;
 using Microsoft.Extensions.DependencyInjection;
 using HyperPost.DB;
+using HyperPost.Migrations;
+using HyperPost.DTO.Pagination;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace HyperPost.Tests.Controllers
 {
@@ -1963,6 +1966,143 @@ namespace HyperPost.Tests.Controllers
 
             var deleteResponse = await _client.SendAsync(deleteMessage);
             Assert.Equal(HttpStatusCode.NotFound, deleteResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AnonymouesGetsUsers_ReturnsUnauthorized()
+        {
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.RequestUri = new Uri("http://localhost:8000/users");
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.Unauthorized, getResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AdminGetsUsers_ReturnsOkAllUsers()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/users",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var getContent = await getResponse.Content.ReadFromJsonAsync<
+                PaginationResponse<UserResponse>
+            >();
+            Assert.NotNull(getContent);
+            Assert.Contains(getContent.List, u => u.RoleId == (int)UserRolesEnum.Admin);
+            Assert.Contains(getContent.List, u => u.RoleId == (int)UserRolesEnum.Manager);
+            Assert.Contains(getContent.List, u => u.RoleId == (int)UserRolesEnum.Client);
+
+            Assert.Equal(1, getContent.TotalPages);
+            Assert.Equal(3, getContent.TotalCount);
+        }
+
+        [Fact]
+        public async Task GET_ManagerGetsUsers_ReturnsOkOnlyClients()
+        {
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/users",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var getContent = await getResponse.Content.ReadFromJsonAsync<
+                PaginationResponse<UserResponse>
+            >();
+            Assert.NotNull(getContent);
+            Assert.DoesNotContain(getContent.List, u => u.RoleId == (int)UserRolesEnum.Admin);
+            Assert.DoesNotContain(getContent.List, u => u.RoleId == (int)UserRolesEnum.Manager);
+            Assert.Contains(getContent.List, u => u.RoleId == (int)UserRolesEnum.Client);
+            Assert.Equal(1, getContent.TotalPages);
+            Assert.Equal(1, getContent.TotalCount);
+        }
+
+        [Fact]
+        public async Task GET_ClientGetsUsers_ReturnsForbidden()
+        {
+            var clientLogin = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+            var paginationRequest = new PaginationRequest { Page = 1, Limit = 10 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/users",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                clientLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, getResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_GetsUsersWithInvalidParams_ReturnsBadRequest()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var paginationRequest = new PaginationRequest { Page = 0, Limit = 0 };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/users",
+                new Dictionary<string, string?>
+                {
+                    { "page", paginationRequest.Page.ToString() },
+                    { "limit", paginationRequest.Limit.ToString() }
+                }
+            );
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.BadRequest, getResponse.StatusCode);
         }
     }
 }
