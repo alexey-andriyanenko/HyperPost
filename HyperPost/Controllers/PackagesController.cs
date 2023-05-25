@@ -56,13 +56,25 @@ namespace HyperPost.Controllers
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
 
+            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
             var query = _dbContext.Packages.AsQueryable();
-            var totalCount = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling((double)totalCount / paginationRequest.Limit);
+
             var models = await query
                 .Skip(paginationRequest.Limit * (paginationRequest.Page - 1))
                 .Take(paginationRequest.Limit)
                 .ToListAsync();
+
+            if (role == "client")
+            {
+                var userId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "Id").Value);
+                models = models
+                    .Where(x => x.ReceiverUserId == userId || x.SenderUserId == userId)
+                    .ToList();
+            }
+
+            var totalCount = models.Count();
+            var totalPages = (int)Math.Ceiling((double)totalCount / paginationRequest.Limit);
+
             var response = new PaginationResponse<PackageResponse>
             {
                 TotalCount = totalCount,
