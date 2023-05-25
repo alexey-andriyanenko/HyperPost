@@ -82,10 +82,10 @@ namespace HyperPost.Controllers
              * manager can create only client users
              */
 
-            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+            var roleId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "RoleId").Value);
 
             if (
-                role != "admin"
+                roleId != (int)UserRolesEnum.Admin
                 && (
                     request.RoleId == (int)UserRolesEnum.Admin
                     || request.RoleId == (int)UserRolesEnum.Manager
@@ -137,7 +137,7 @@ namespace HyperPost.Controllers
              * Managers can acess only client users
              */
 
-            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+            var roleId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "RoleId").Value);
 
             var validationResult = await _paginationRequestValidator.ValidateAsync(
                 paginationRequest
@@ -151,7 +151,7 @@ namespace HyperPost.Controllers
                 .Take(paginationRequest.Limit)
                 .ToListAsync();
 
-            if (role == "manager")
+            if (roleId == (int)UserRolesEnum.Manager)
                 models = models.Where(u => u.RoleId == (int)UserRolesEnum.Client).ToList();
 
             var totalCount = models.Count();
@@ -190,13 +190,13 @@ namespace HyperPost.Controllers
              * manager can update only client users
              */
 
-            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+            var roleId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "RoleId").Value);
 
-            if (role == "admin" && request.RoleId == (int)UserRolesEnum.Admin)
+            if (roleId == (int)UserRolesEnum.Admin && request.RoleId == (int)UserRolesEnum.Admin)
                 return Forbid();
 
             if (
-                role == "manager"
+                roleId == (int)UserRolesEnum.Manager
                 && (
                     request.RoleId == (int)UserRolesEnum.Admin
                     || request.RoleId == (int)UserRolesEnum.Manager
@@ -251,13 +251,13 @@ namespace HyperPost.Controllers
              * manager can delete only client user
              */
 
-            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+            var roleId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "RoleId").Value);
             var user = await _dbContext.Users.FindAsync(id);
 
             if (user == null)
                 return NotFound($"User with id={id} not found");
 
-            if (role == "manager" && user.RoleId != (int)UserRolesEnum.Client)
+            if (roleId == (int)UserRolesEnum.Manager && user.RoleId != (int)UserRolesEnum.Client)
                 return Forbid();
 
             _dbContext.Users.Remove(user);

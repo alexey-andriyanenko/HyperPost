@@ -57,7 +57,7 @@ namespace HyperPost.Controllers
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
 
-            var role = HttpContext.User.Claims.Single(c => c.Type == "Role").Value;
+            var roleId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "RoleId").Value);
             var query = _dbContext.Packages.AsQueryable();
 
             var models = await query
@@ -65,7 +65,7 @@ namespace HyperPost.Controllers
                 .Take(paginationRequest.Limit)
                 .ToListAsync();
 
-            if (role == "client")
+            if (roleId == (int)UserRolesEnum.Client)
             {
                 var userId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "Id").Value);
                 models = models
