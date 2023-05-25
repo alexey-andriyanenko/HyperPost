@@ -1,17 +1,8 @@
 ﻿using HyperPost.Models;
+using HyperPost.Shared;
 
 namespace HyperPost.Tests.Helpers
 {
-    public enum PackageStatusesEnum
-    {
-        Created = 1,
-        Sent = 2,
-        Arrived = 3,
-        Received = 4,
-        Archived = 5,
-        Modified = 6,
-    }
-
     public static class PackageStatusesHelper
     {
         public static PackageStatusModel GetPackageStatusModel(PackageStatusesEnum statusType)

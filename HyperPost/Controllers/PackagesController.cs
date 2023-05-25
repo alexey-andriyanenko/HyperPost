@@ -9,6 +9,7 @@ using FluentValidation;
 using HyperPost.Models;
 using Microsoft.EntityFrameworkCore;
 using HyperPost.DTO.Pagination;
+using HyperPost.Shared;
 
 namespace HyperPost.Controllers
 {
@@ -119,12 +120,9 @@ namespace HyperPost.Controllers
             if (category == null)
                 return BadRequest("Category with provided id was not found");
 
-            var statuses = await _dbContext.PackageStatuses.ToListAsync();
-            var createdStatus = statuses.Select(x => x).Where(x => x.Name == "created").Single();
-
             var model = new PackageModel
             {
-                StatusId = createdStatus.Id,
+                StatusId = (int)PackageStatusesEnum.Created,
                 CategoryId = request.CategoryId,
                 CreatedAt = DateTime.Now,
                 SenderUserId = request.SenderUserId,
@@ -162,13 +160,9 @@ namespace HyperPost.Controllers
             if (category == null)
                 return BadRequest("Category with provided id was not found");
 
-            // TODO: add statuses enum and use it instead
-            var statuses = await _dbContext.PackageStatuses.ToListAsync();
-            var modifiedStatus = statuses.Select(x => x).Where(x => x.Name == "modified").Single();
-
             model.CategoryId = request.CategoryId;
             model.Description = request.Description;
-            model.StatusId = modifiedStatus.Id;
+            model.StatusId = (int)PackageStatusesEnum.Modified;
             model.ModifiedAt = DateTime.Now;
 
             await _dbContext.SaveChangesAsync();
@@ -184,10 +178,7 @@ namespace HyperPost.Controllers
             if (model == null)
                 return NotFound();
 
-            var statuses = await _dbContext.PackageStatuses.ToListAsync();
-            var archivedStatus = statuses.Select(x => x).Where(x => x.Name == "archived").Single();
-
-            model.StatusId = archivedStatus.Id;
+            model.StatusId = (int)PackageStatusesEnum.Archived;
             model.ArchivedAt = DateTime.Now;
 
             await _dbContext.SaveChangesAsync();
