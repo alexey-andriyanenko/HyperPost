@@ -18,6 +18,19 @@ namespace HyperPost
                 options.UseSqlServer(builder.Configuration.GetConnectionString("HyperPost"));
             });
 
+            builder.Services.AddCors(options =>
+            {
+                options.AddPolicy(
+                    "AllowAll",
+                    policy =>
+                    {
+                        policy.AllowAnyOrigin();
+                        policy.AllowAnyMethod();
+                        policy.AllowAnyHeader();
+                    }
+                );
+            });
+
             builder.Services.AddHyperPostAuthentication();
             builder.Services.AddHttpContextAccessor();
             builder.Services.AddControllers();
@@ -33,6 +46,7 @@ namespace HyperPost
                 options.SwaggerEndpoint("/swagger/v1/swagger.json", "v1");
                 options.RoutePrefix = string.Empty;
             });
+            app.UseCors("AllowAll");
             app.Run();
         }
     }
