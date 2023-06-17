@@ -2104,5 +2104,96 @@ namespace HyperPost.Tests.Controllers
             var getResponse = await _client.SendAsync(getMessage);
             Assert.Equal(HttpStatusCode.BadRequest, getResponse.StatusCode);
         }
+
+        [Fact]
+        public async Task GET_AnonymousGetsHimself_ReturnsUnauthorized()
+        {
+            var getMessage = new HttpRequestMessage();
+            getMessage.Method = HttpMethod.Get;
+            getMessage.RequestUri = new Uri("http://localhost:8000/users/me");
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.Unauthorized, getResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_AdminGetssHimself_ReturnsOk()
+        {
+            var adminUser = UsersHelper.GetExistingUserModel(UserRolesEnum.Admin);
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri("http://localhost:8000/users/me");
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var getContent = await getResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(getContent);
+            Assert.Equal(adminLogin.Id, getContent.Id);
+            Assert.Equal(adminUser.Email, getContent.Email);
+            Assert.Equal(adminUser.PhoneNumber, getContent.PhoneNumber);
+            Assert.Equal(adminUser.FirstName, getContent.FirstName);
+            Assert.Equal(adminUser.LastName, getContent.LastName);
+            Assert.Equal(adminUser.RoleId, getContent.RoleId);
+        }
+
+        [Fact]
+        public async Task GET_ManagerGetsHimself_ReturnsOk()
+        {
+            var managerUser = UsersHelper.GetExistingUserModel(UserRolesEnum.Manager);
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri("http://localhost:8000/users/me");
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var getContent = await getResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(getContent);
+            Assert.Equal(managerLogin.Id, getContent.Id);
+            Assert.Equal(managerUser.Email, getContent.Email);
+            Assert.Equal(managerUser.PhoneNumber, getContent.PhoneNumber);
+            Assert.Equal(managerUser.FirstName, getContent.FirstName);
+            Assert.Equal(managerUser.LastName, getContent.LastName);
+            Assert.Equal(managerUser.RoleId, getContent.RoleId);
+        }
+
+        [Fact]
+        public async Task GET_ClientGetsHimself_ReturnsOk()
+        {
+            var clientUser = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
+            var clientLogin = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+
+            var getMessage = new HttpRequestMessage();
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                clientLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri("http://localhost:8000/users/me");
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var getContent = await getResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(getContent);
+            Assert.Equal(clientLogin.Id, getContent.Id);
+            Assert.Equal(clientUser.Email, getContent.Email);
+            Assert.Equal(clientUser.PhoneNumber, getContent.PhoneNumber);
+            Assert.Equal(clientUser.FirstName, getContent.FirstName);
+            Assert.Equal(clientUser.LastName, getContent.LastName);
+            Assert.Equal(clientUser.RoleId, getContent.RoleId);
+        }
     }
 }

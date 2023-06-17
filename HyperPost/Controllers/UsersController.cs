@@ -178,6 +178,19 @@ namespace HyperPost.Controllers
             return Ok(_GetUserResponse(user));
         }
 
+        [Authorize]
+        [HttpGet("me")]
+        public async Task<ActionResult<UserResponse>> GetMe()
+        {
+            var userId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "Id").Value);
+            var user = await _dbContext.Users.FindAsync(userId);
+
+            if (user == null)
+                return NotFound($"User with id={userId} not found");
+
+            return Ok(_GetUserResponse(user));
+        }
+
         [Authorize(Policy = "admin, manager")]
         [HttpPut("{id}")]
         public async Task<ActionResult<UserResponse>> UpdateUser(
