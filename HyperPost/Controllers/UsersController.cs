@@ -29,18 +29,21 @@ namespace HyperPost.Controllers
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<CreateUserRequest> _createUserRequestValidator;
         private readonly IValidator<UpdateUserRequest> _updateUserRequestValidator;
+        private readonly IValidator<UpdateMeRequest> _updateMeRequestValidator;
         private readonly IValidator<PaginationRequest> _paginationRequestValidator;
 
         public UsersController(
             HyperPostDbContext dbContext,
             IValidator<CreateUserRequest> createUserRequestValidator,
             IValidator<UpdateUserRequest> updateUserRequestValidator,
+            IValidator<UpdateMeRequest> updateMeRequestValidator,
             IValidator<PaginationRequest> paginationRequestValidator
         )
         {
             _dbContext = dbContext;
             _createUserRequestValidator = createUserRequestValidator;
             _updateUserRequestValidator = updateUserRequestValidator;
+            _updateMeRequestValidator = updateMeRequestValidator;
             _paginationRequestValidator = paginationRequestValidator;
         }
 
@@ -237,6 +240,47 @@ namespace HyperPost.Controllers
             }
 
             user.RoleId = request.RoleId;
+            user.FirstName = request.FirstName;
+            user.LastName = request.LastName;
+
+            try
+            {
+                await _dbContext.SaveChangesAsync();
+            }
+            catch (UniqueConstraintException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            catch (MaxLengthExceededException ex)
+            {
+                return BadRequest(ex.Message);
+            }
+
+            return Ok(_GetUserResponse(user));
+        }
+
+        [Authorize]
+        [HttpPut("me")]
+        public async Task<ActionResult<UserResponse>> UpdateMe([FromBody] UpdateMeRequest request)
+        {
+            var userId = int.Parse(HttpContext.User.Claims.Single(c => c.Type == "Id").Value);
+
+            var validationResult = await _updateMeRequestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+                return BadRequest(validationResult.Errors);
+
+            var user = await _dbContext.Users.SingleAsync(u => u.Id == userId);
+
+            // NOTE: editing email if it is already set is not yet supported
+            if (user.Email == null && (user.Email != request.Email))
+            {
+                user.Email = request.Email;
+            }
+            if (user.Email != null && (user.Email != request.Email))
+            {
+                return BadRequest("Email cannot be changed");
+            }
+
             user.FirstName = request.FirstName;
             user.LastName = request.LastName;
 

@@ -14,6 +14,7 @@ namespace HyperPost.Extensions
         {
             services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
             services.AddScoped<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();
+            services.AddScoped<IValidator<UpdateMeRequest>, UpdateMeRequestValidator>();
             services.AddScoped<
                 IValidator<CreateDepartmentRequest>,
                 CreateDepartmentRequestValidator
