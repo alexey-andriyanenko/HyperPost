@@ -1,4 +1,5 @@
-﻿using EntityFramework.Exceptions.Common;
+﻿using Azure.Core;
+using EntityFramework.Exceptions.Common;
 using FluentValidation;
 using FluentValidation.Validators;
 using HyperPost.DB;
@@ -305,7 +306,7 @@ namespace HyperPost.Controllers
                 new Claim("Id", model.Id.ToString()),
                 new Claim("FirstName", model.FirstName),
                 new Claim("LastName", model.LastName),
-                new Claim("Email", model.Email),
+                new Claim("Email", model.Email ?? ""),
                 new Claim("PhoneNumber", model.PhoneNumber),
                 new Claim("RoleId", role.Id.ToString()),
                 new Claim("Role", role.Name),
