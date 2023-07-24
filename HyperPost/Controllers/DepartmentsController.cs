@@ -10,6 +10,7 @@ using HyperPost.DTO.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Azure;
+using HyperPost.Shared;
 
 namespace HyperPost.Controllers
 {
@@ -83,7 +84,12 @@ namespace HyperPost.Controllers
         {
             var validationResult = await _createDepartmentRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
+            {
+                var error = new AppError("create-department-validation-error");
+                error.Errors = validationResult.ToDictionary();
+
+                return BadRequest(error);
+            }
 
             var model = new DepartmentModel
             {
@@ -98,11 +104,13 @@ namespace HyperPost.Controllers
             }
             catch (UniqueConstraintException ex)
             {
-                return BadRequest(ex.Message);
+                var error = new AppError("create-department-unique-constraint-error", ex.Message);
+                return BadRequest(error);
             }
             catch (MaxLengthExceededException ex)
             {
-                return BadRequest(ex.Message);
+                var error = new AppError("create-department-max-length-exceeded-error", ex.Message);
+                return BadRequest(error);
             }
 
             return Created("department", _GetDepartmentResponse(model));

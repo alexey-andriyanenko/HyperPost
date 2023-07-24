@@ -157,6 +157,13 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<AppError>();
+
+            Assert.NotNull(content);
+            Assert.Equal("create-department-unique-constraint-error", content.Type);
+            Assert.NotNull(content.Message);
+            Assert.Null(content.Errors);
         }
 
         [Fact]
@@ -182,6 +189,17 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(content);
+            Assert.Equal("create-department-validation-error", content.Type);
+            Assert.Null(content.Message);
+            Assert.Equal(1, content.Errors.Count);
+            Assert.Contains("FullAddress", content.Errors.Keys);
+            Assert.Contains(
+                "FullAddress must be less than or equal to 100 characters",
+                content.Errors["FullAddress"]
+            );
         }
 
         [Fact]
@@ -202,6 +220,14 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(content);
+            Assert.Equal("create-department-validation-error", content.Type);
+            Assert.Null(content.Message);
+            Assert.Equal(1, content.Errors.Count);
+            Assert.Contains("FullAddress", content.Errors.Keys);
+            Assert.Contains("FullAddress is required", content.Errors["FullAddress"]);
         }
 
         [Fact]
