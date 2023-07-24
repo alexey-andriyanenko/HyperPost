@@ -125,7 +125,11 @@ namespace HyperPost.Controllers
         {
             var validationResult = await _updateDepartmentRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
+            {
+                var error = new AppError("update-department-validation-error");
+                error.Errors = validationResult.ToDictionary();
+                return BadRequest(error);
+            }
 
             var model = await _dbContext.Departments.FindAsync(id);
             if (model == null)
@@ -139,11 +143,13 @@ namespace HyperPost.Controllers
             }
             catch (UniqueConstraintException ex)
             {
-                return BadRequest(ex.Message);
+                var error = new AppError("update-department-unique-constraint-error", ex.Message);
+                return BadRequest(error);
             }
             catch (MaxLengthExceededException ex)
             {
-                return BadRequest(ex.Message);
+                var error = new AppError("update-department-max-length-exceeded-error", ex.Message);
+                return BadRequest(error);
             }
 
             return Ok(_GetDepartmentResponse(model));

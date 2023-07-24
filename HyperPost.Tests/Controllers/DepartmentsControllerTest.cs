@@ -610,6 +610,14 @@ namespace HyperPost.Tests.Controllers
 
             var putResponse = await _client.SendAsync(putMessage);
             Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+
+            var putContent = await putResponse.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(putContent);
+            Assert.Equal("update-department-validation-error", putContent.Type);
+            Assert.Null(putContent.Message);
+            Assert.Equal(1, putContent.Errors.Count);
+            Assert.Contains("FullAddress", putContent.Errors.Keys);
+            Assert.Contains("FullAddress is required", putContent.Errors["FullAddress"]);
             // update department ↑
 
             // cleanup ↓
@@ -664,6 +672,17 @@ namespace HyperPost.Tests.Controllers
 
             var putResponse = await _client.SendAsync(putMessage);
             Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
+
+            var putContent = await putResponse.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(putContent);
+            Assert.Equal("update-department-validation-error", putContent.Type);
+            Assert.Null(putContent.Message);
+            Assert.Equal(1, putContent.Errors.Count);
+            Assert.Contains("FullAddress", putContent.Errors.Keys);
+            Assert.Contains(
+                "FullAddress must be less than or equal to 100 characters",
+                putContent.Errors["FullAddress"]
+            );
             // update department ↑
 
             // cleanup ↓
