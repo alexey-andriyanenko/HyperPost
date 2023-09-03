@@ -114,6 +114,16 @@ namespace HyperPost.Tests.Controllers
 
             var response = await _client.SendAsync(message);
             Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(content);
+            Assert.Equal("create-package-category-validation-error", content.Type);
+            Assert.Equal(1, content.Errors.Count);
+            Assert.Contains("Name", content.Errors.Keys);
+            Assert.Contains(
+                "Name must be less than or equal to 30 characters",
+                content.Errors["Name"]
+            );
         }
 
         [Fact]
@@ -152,6 +162,12 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, secondResponse.StatusCode);
             // create second category with same name ↑
 
+            var content = await secondResponse.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(content);
+            Assert.Equal("create-package-category-unique-constraint-error", content.Type);
+            Assert.NotNull(content.Message);
+            Assert.Null(content.Errors);
+
             // cleanup ↓
             using (var scope = _factory.Services.CreateScope())
             {
@@ -160,6 +176,33 @@ namespace HyperPost.Tests.Controllers
                 db.PackageCategoties.Remove(model);
                 db.SaveChanges();
             }
+        }
+
+        [Fact]
+        public async Task POST_AdminCreatesPackageCategoryWithInvalidData_ReturnsBadRequest()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var category = new CreatePackageCategoryRequest { Name = null, };
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Post;
+            message.Content = JsonContent.Create(category);
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri("http://localhost:8000/package/categories");
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(content);
+            Assert.Equal("create-package-category-validation-error", content.Type);
+            Assert.Equal(1, content.Errors.Count);
+            Assert.Contains("Name", content.Errors.Keys);
+            Assert.Contains("Name is required", content.Errors["Name"]);
         }
 
         [Fact]

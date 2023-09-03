@@ -12,6 +12,7 @@ using HyperPost.DTO.Pagination;
 using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System;
+using HyperPost.Shared;
 
 namespace HyperPost.Controllers
 {
@@ -84,7 +85,12 @@ namespace HyperPost.Controllers
         {
             var validationResult = await _categoryRequestValidator.ValidateAsync(category);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
+            {
+                var error = new AppError("create-package-category-validation-error");
+                error.Errors = validationResult.ToDictionary();
+
+                return BadRequest(error);
+            }
 
             var model = new PackageCategoryModel { Name = category.Name };
 
@@ -95,11 +101,19 @@ namespace HyperPost.Controllers
             }
             catch (MaxLengthExceededException ex)
             {
-                return BadRequest(ex.Message);
+                var error = new AppError(
+                    "create-package-category-max-length-exceeded-error",
+                    ex.Message
+                );
+                return BadRequest(error);
             }
             catch (UniqueConstraintException ex)
             {
-                return BadRequest(ex.Message);
+                var error = new AppError(
+                    "create-package-category-unique-constraint-error",
+                    ex.Message
+                );
+                return BadRequest(error);
             }
 
             return Created("category", _GetPackageCategoryResponse(model));
