@@ -6,9 +6,11 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using HyperPost.DB;
 
 [assembly: CollectionBehavior(DisableTestParallelization = true)]
+
 namespace HyperPost.Tests
 {
-    public class HyperPostTestFactory<TProgram> : WebApplicationFactory<TProgram> where TProgram : class
+    public class HyperPostTestFactory<TProgram> : WebApplicationFactory<TProgram>
+        where TProgram : class
     {
         protected override void ConfigureWebHost(IWebHostBuilder builder)
         {
@@ -19,7 +21,9 @@ namespace HyperPost.Tests
 
             builder.ConfigureServices(services =>
             {
-                var dbContextDescriptor = services.SingleOrDefault(d => d.ServiceType == typeof(DbContextOptions<HyperPostDbContext>));
+                var dbContextDescriptor = services.SingleOrDefault(
+                    d => d.ServiceType == typeof(DbContextOptions<HyperPostDbContext>)
+                );
                 services.Remove(dbContextDescriptor);
                 services.AddDbContext<HyperPostDbContext>(options =>
                 {

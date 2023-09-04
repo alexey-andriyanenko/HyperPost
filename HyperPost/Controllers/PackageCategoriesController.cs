@@ -86,7 +86,7 @@ namespace HyperPost.Controllers
             var validationResult = await _categoryRequestValidator.ValidateAsync(category);
             if (!validationResult.IsValid)
             {
-                var error = new AppError("create-package-category-validation-error");
+                var error = new AppError("package-category-validation-error");
                 error.Errors = validationResult.ToDictionary();
 
                 return BadRequest(error);
@@ -101,18 +101,12 @@ namespace HyperPost.Controllers
             }
             catch (MaxLengthExceededException ex)
             {
-                var error = new AppError(
-                    "create-package-category-max-length-exceeded-error",
-                    ex.Message
-                );
+                var error = new AppError("package-category-max-length-exceeded-error", ex.Message);
                 return BadRequest(error);
             }
             catch (UniqueConstraintException ex)
             {
-                var error = new AppError(
-                    "create-package-category-unique-constraint-error",
-                    ex.Message
-                );
+                var error = new AppError("package-category-unique-constraint-error", ex.Message);
                 return BadRequest(error);
             }
 
@@ -128,7 +122,12 @@ namespace HyperPost.Controllers
         {
             var validationResult = await _updateCategoryRequestValidator.ValidateAsync(category);
             if (!validationResult.IsValid)
-                return BadRequest(validationResult.Errors);
+            {
+                var error = new AppError("package-category-validation-error");
+                error.Errors = validationResult.ToDictionary();
+
+                return BadRequest(error);
+            }
 
             var model = await _dbContext.PackageCategoties.FindAsync(id);
             if (model == null)
@@ -143,11 +142,13 @@ namespace HyperPost.Controllers
             }
             catch (UniqueConstraintException ex)
             {
-                return BadRequest(ex.Message);
+                var error = new AppError("package-category-unique-constraint-error", ex.Message);
+                return BadRequest(error);
             }
             catch (MaxLengthExceededException ex)
             {
-                return BadRequest(ex.Message);
+                var error = new AppError("package-category-max-length-exceeded-error", ex.Message);
+                return BadRequest(error);
             }
 
             return Ok(_GetPackageCategoryResponse(model));

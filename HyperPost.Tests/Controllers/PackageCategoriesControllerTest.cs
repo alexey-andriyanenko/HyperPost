@@ -117,7 +117,7 @@ namespace HyperPost.Tests.Controllers
 
             var content = await response.Content.ReadFromJsonAsync<AppError>();
             Assert.NotNull(content);
-            Assert.Equal("create-package-category-validation-error", content.Type);
+            Assert.Equal("package-category-validation-error", content.Type);
             Assert.Equal(1, content.Errors.Count);
             Assert.Contains("Name", content.Errors.Keys);
             Assert.Contains(
@@ -164,7 +164,7 @@ namespace HyperPost.Tests.Controllers
 
             var content = await secondResponse.Content.ReadFromJsonAsync<AppError>();
             Assert.NotNull(content);
-            Assert.Equal("create-package-category-unique-constraint-error", content.Type);
+            Assert.Equal("package-category-unique-constraint-error", content.Type);
             Assert.NotNull(content.Message);
             Assert.Null(content.Errors);
 
@@ -199,7 +199,7 @@ namespace HyperPost.Tests.Controllers
 
             var content = await response.Content.ReadFromJsonAsync<AppError>();
             Assert.NotNull(content);
-            Assert.Equal("create-package-category-validation-error", content.Type);
+            Assert.Equal("package-category-validation-error", content.Type);
             Assert.Equal(1, content.Errors.Count);
             Assert.Contains("Name", content.Errors.Keys);
             Assert.Contains("Name is required", content.Errors["Name"]);
@@ -494,6 +494,12 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
             // update category ↑
 
+            var content = await putResponse.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(content);
+            Assert.Equal("package-category-unique-constraint-error", content.Type);
+            Assert.NotNull(content.Message);
+            Assert.Null(content.Errors);
+
             // cleanup ↓
             using (var scope = _factory.Services.CreateScope())
             {
@@ -552,6 +558,16 @@ namespace HyperPost.Tests.Controllers
             var putResponse = await _client.SendAsync(putMessage);
             Assert.Equal(HttpStatusCode.BadRequest, putResponse.StatusCode);
             // update category ↑
+
+            var content = await putResponse.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(content);
+            Assert.Equal("package-category-validation-error", content.Type);
+            Assert.Equal(1, content.Errors.Count);
+            Assert.Contains("Name", content.Errors);
+            Assert.Contains(
+                "Name must be less than or equal to 30 characters",
+                content.Errors["Name"]
+            );
 
             // cleanup ↓
             using (var scope = _factory.Services.CreateScope())
