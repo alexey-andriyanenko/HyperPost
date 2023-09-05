@@ -85,7 +85,7 @@ namespace HyperPost.Controllers
             var validationResult = await _createDepartmentRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
-                var error = new AppError("create-department-validation-error");
+                var error = new AppError("department-validation-error");
                 error.Errors = validationResult.ToDictionary();
 
                 return BadRequest(error);
@@ -104,12 +104,12 @@ namespace HyperPost.Controllers
             }
             catch (UniqueConstraintException ex)
             {
-                var error = new AppError("create-department-unique-constraint-error", ex.Message);
+                var error = new AppError("department-unique-constraint-error", ex.Message);
                 return BadRequest(error);
             }
             catch (MaxLengthExceededException ex)
             {
-                var error = new AppError("create-department-max-length-exceeded-error", ex.Message);
+                var error = new AppError("department-max-length-exceeded-error", ex.Message);
                 return BadRequest(error);
             }
 
@@ -126,7 +126,7 @@ namespace HyperPost.Controllers
             var validationResult = await _updateDepartmentRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
             {
-                var error = new AppError("update-department-validation-error");
+                var error = new AppError("department-validation-error");
                 error.Errors = validationResult.ToDictionary();
                 return BadRequest(error);
             }
@@ -143,12 +143,12 @@ namespace HyperPost.Controllers
             }
             catch (UniqueConstraintException ex)
             {
-                var error = new AppError("update-department-unique-constraint-error", ex.Message);
+                var error = new AppError("department-unique-constraint-error", ex.Message);
                 return BadRequest(error);
             }
             catch (MaxLengthExceededException ex)
             {
-                var error = new AppError("update-department-max-length-exceeded-error", ex.Message);
+                var error = new AppError("department-max-length-exceeded-error", ex.Message);
                 return BadRequest(error);
             }
 

@@ -161,7 +161,7 @@ namespace HyperPost.Tests.Controllers
             var content = await response.Content.ReadFromJsonAsync<AppError>();
 
             Assert.NotNull(content);
-            Assert.Equal("create-department-unique-constraint-error", content.Type);
+            Assert.Equal("department-unique-constraint-error", content.Type);
             Assert.NotNull(content.Message);
             Assert.Null(content.Errors);
         }
@@ -192,7 +192,7 @@ namespace HyperPost.Tests.Controllers
 
             var content = await response.Content.ReadFromJsonAsync<AppError>();
             Assert.NotNull(content);
-            Assert.Equal("create-department-validation-error", content.Type);
+            Assert.Equal("department-validation-error", content.Type);
             Assert.Null(content.Message);
             Assert.Equal(1, content.Errors.Count);
             Assert.Contains("FullAddress", content.Errors.Keys);
@@ -223,7 +223,7 @@ namespace HyperPost.Tests.Controllers
 
             var content = await response.Content.ReadFromJsonAsync<AppError>();
             Assert.NotNull(content);
-            Assert.Equal("create-department-validation-error", content.Type);
+            Assert.Equal("department-validation-error", content.Type);
             Assert.Null(content.Message);
             Assert.Equal(1, content.Errors.Count);
             Assert.Contains("FullAddress", content.Errors.Keys);
@@ -613,7 +613,7 @@ namespace HyperPost.Tests.Controllers
 
             var putContent = await putResponse.Content.ReadFromJsonAsync<AppError>();
             Assert.NotNull(putContent);
-            Assert.Equal("update-department-validation-error", putContent.Type);
+            Assert.Equal("department-validation-error", putContent.Type);
             Assert.Null(putContent.Message);
             Assert.Equal(1, putContent.Errors.Count);
             Assert.Contains("FullAddress", putContent.Errors.Keys);
@@ -675,7 +675,7 @@ namespace HyperPost.Tests.Controllers
 
             var putContent = await putResponse.Content.ReadFromJsonAsync<AppError>();
             Assert.NotNull(putContent);
-            Assert.Equal("update-department-validation-error", putContent.Type);
+            Assert.Equal("department-validation-error", putContent.Type);
             Assert.Null(putContent.Message);
             Assert.Equal(1, putContent.Errors.Count);
             Assert.Contains("FullAddress", putContent.Errors.Keys);
