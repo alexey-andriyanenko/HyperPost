@@ -15,7 +15,7 @@ namespace HyperPost
 
             builder.Services.AddDbContext<HyperPostDbContext>(options =>
             {
-                options.UseSqlServer(builder.Configuration.GetConnectionString("HyperPost"));
+                options.UseSqlServer(builder.Configuration.GetConnectionString("HyperPostTests"));
             });
 
             builder.Services.AddCors(options =>

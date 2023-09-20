@@ -6,11 +6,11 @@ namespace HyperPost.DTO.Package
     {
         public Guid Id { get; set; }
         public int StatusId { get; set; }
-        public int CategoryId { get; set; }
+        public int? CategoryId { get; set; }
         public int SenderUserId { get; set; }
         public int ReceiverUserId { get; set; }
-        public int SenderDepartmentId { get; set; }
-        public int ReceiverDepartmentId { get; set; }
+        public int? SenderDepartmentId { get; set; }
+        public int? ReceiverDepartmentId { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
         public DateTime? SentAt { get; set; }
