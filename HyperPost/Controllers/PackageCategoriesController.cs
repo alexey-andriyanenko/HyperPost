@@ -45,7 +45,7 @@ namespace HyperPost.Controllers
             if (model == null)
                 return NotFound();
 
-            return Ok(_GetPackageCategoryResponse(model));
+            return Ok(model.ToResponse());
         }
 
         [Authorize]
@@ -71,7 +71,7 @@ namespace HyperPost.Controllers
             {
                 TotalCount = totalCount,
                 TotalPages = totalPages,
-                List = list.Select(_GetPackageCategoryResponse).ToList()
+                List = list.Select(pc => pc.ToResponse()).ToList()
             };
 
             return Ok(response);
@@ -110,7 +110,7 @@ namespace HyperPost.Controllers
                 return BadRequest(error);
             }
 
-            return Created("category", _GetPackageCategoryResponse(model));
+            return Created("category", model.ToResponse());
         }
 
         [Authorize(Policy = "admin")]
@@ -151,7 +151,7 @@ namespace HyperPost.Controllers
                 return BadRequest(error);
             }
 
-            return Ok(_GetPackageCategoryResponse(model));
+            return Ok(model.ToResponse());
         }
 
         [Authorize(Policy = "admin")]
@@ -166,11 +166,6 @@ namespace HyperPost.Controllers
             await _dbContext.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private PackageCategoryResponse _GetPackageCategoryResponse(PackageCategoryModel model)
-        {
-            return new PackageCategoryResponse { Id = model.Id, Name = model.Name };
         }
     }
 }

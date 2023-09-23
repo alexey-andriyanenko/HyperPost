@@ -1,4 +1,7 @@
-﻿using System;
+﻿using HyperPost.DTO.Department;
+using HyperPost.DTO.PackageCategory;
+using HyperPost.DTO.User;
+using System;
 
 namespace HyperPost.DTO.Package
 {
@@ -6,11 +9,14 @@ namespace HyperPost.DTO.Package
     {
         public Guid Id { get; set; }
         public int StatusId { get; set; }
-        public int? CategoryId { get; set; }
-        public int SenderUserId { get; set; }
-        public int ReceiverUserId { get; set; }
-        public int? SenderDepartmentId { get; set; }
-        public int? ReceiverDepartmentId { get; set; }
+
+        public PackageCategoryResponse? Category { get; set; }
+        public UserResponse SenderUser { get; set; }
+        public UserResponse ReceiverUser { get; set; }
+
+        public DepartmentResponse? SenderDepartment { get; set; }
+        public DepartmentResponse? ReceiverDepartment { get; set; }
+
         public DateTime CreatedAt { get; set; }
         public DateTime? ModifiedAt { get; set; }
         public DateTime? SentAt { get; set; }

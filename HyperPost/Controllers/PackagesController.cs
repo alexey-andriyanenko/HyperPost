@@ -10,6 +10,9 @@ using HyperPost.Models;
 using Microsoft.EntityFrameworkCore;
 using HyperPost.DTO.Pagination;
 using HyperPost.Shared;
+using HyperPost.DTO.PackageCategory;
+using HyperPost.DTO.Department;
+using HyperPost.DTO.User;
 
 namespace HyperPost.Controllers
 {
@@ -38,11 +41,17 @@ namespace HyperPost.Controllers
         [HttpGet("{id:guid}")]
         public async Task<ActionResult<PackageResponse>> GetPackageById(Guid id)
         {
-            var model = await _dbContext.Packages.FindAsync(id);
+            var model = await _dbContext.Packages
+                .Include(p => p.SenderUser)
+                .Include(p => p.ReceiverUser)
+                .Include(p => p.SenderDepartment)
+                .Include(p => p.ReceiverDepartment)
+                .Include(p => p.Category)
+                .SingleOrDefaultAsync(p => p.Id == id);
             if (model == null)
                 return NotFound();
 
-            return Ok(_GetPackageResponse(model));
+            return Ok(model.ToResponse());
         }
 
         [Authorize]
@@ -63,6 +72,11 @@ namespace HyperPost.Controllers
             var models = await query
                 .Skip(paginationRequest.Limit * (paginationRequest.Page - 1))
                 .Take(paginationRequest.Limit)
+                .Include(p => p.SenderUser)
+                .Include(p => p.ReceiverUser)
+                .Include(p => p.SenderDepartment)
+                .Include(p => p.ReceiverDepartment)
+                .Include(p => p.Category)
                 .ToListAsync();
 
             if (roleId == (int)UserRolesEnum.Client)
@@ -80,7 +94,7 @@ namespace HyperPost.Controllers
             {
                 TotalCount = totalCount,
                 TotalPages = totalPages,
-                List = models.Select(_GetPackageResponse).ToList()
+                List = models.Select(x => x.ToResponse()).ToList(),
             };
 
             return Ok(response);
@@ -138,7 +152,7 @@ namespace HyperPost.Controllers
             await _dbContext.Packages.AddAsync(model);
             await _dbContext.SaveChangesAsync();
 
-            return Created("package", _GetPackageResponse(model));
+            return Created("package", model.ToResponse());
         }
 
         [Authorize(Policy = "admin, manager")]
@@ -152,7 +166,13 @@ namespace HyperPost.Controllers
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
 
-            var model = await _dbContext.Packages.FindAsync(id);
+            var model = await _dbContext.Packages
+                .Include(p => p.SenderUser)
+                .Include(p => p.ReceiverUser)
+                .Include(p => p.SenderDepartment)
+                .Include(p => p.ReceiverDepartment)
+                .Include(p => p.Category)
+                .SingleOrDefaultAsync(p => p.Id == id);
             if (model == null)
                 return NotFound();
 
@@ -167,14 +187,20 @@ namespace HyperPost.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return Ok(_GetPackageResponse(model));
+            return Ok(model.ToResponse());
         }
 
         [Authorize(Policy = "admin, manager")]
         [HttpPatch("{id:guid}/archive")]
         public async Task<ActionResult<PackageResponse>> ArchivePackage(Guid id)
         {
-            var model = await _dbContext.Packages.FindAsync(id);
+            var model = await _dbContext.Packages
+                .Include(p => p.SenderUser)
+                .Include(p => p.ReceiverUser)
+                .Include(p => p.SenderDepartment)
+                .Include(p => p.ReceiverDepartment)
+                .Include(p => p.Category)
+                .SingleOrDefaultAsync(p => p.Id == id);
             if (model == null)
                 return NotFound();
 
@@ -183,31 +209,7 @@ namespace HyperPost.Controllers
 
             await _dbContext.SaveChangesAsync();
 
-            return Ok(_GetPackageResponse(model));
-        }
-
-        private PackageResponse _GetPackageResponse(PackageModel model)
-        {
-            return new PackageResponse
-            {
-                Id = model.Id,
-                StatusId = model.StatusId,
-                CategoryId = model.CategoryId,
-                SenderUserId = model.SenderUserId,
-                ReceiverUserId = model.ReceiverUserId,
-                SenderDepartmentId = model.SenderDepartmentId,
-                ReceiverDepartmentId = model.ReceiverDepartmentId,
-                CreatedAt = model.CreatedAt,
-                ModifiedAt = model.ModifiedAt,
-                SentAt = model.SentAt,
-                ArrivedAt = model.ArrivedAt,
-                ReceivedAt = model.ReceivedAt,
-                ArchivedAt = model.ArchivedAt,
-                PackagePrice = model.PackagePrice,
-                DeliveryPrice = model.DeliveryPrice,
-                Weight = model.Weight,
-                Description = model.Description
-            };
+            return Ok(model.ToResponse());
         }
     }
 }

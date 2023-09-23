@@ -29,12 +29,7 @@ namespace HyperPost.Controllers
             var query = _dbContext.PackageStatuses.AsQueryable();
             var statuses = await query.ToListAsync();
 
-            return Ok(statuses.Select(_GetPackageStatusResponse).ToList());
-        }
-
-        private PackageStatusResponse _GetPackageStatusResponse(PackageStatusModel model)
-        {
-            return new PackageStatusResponse { Id = model.Id, Name = model.Name };
+            return Ok(statuses.Select(ps => ps.ToResponse()).ToList());
         }
     }
 }

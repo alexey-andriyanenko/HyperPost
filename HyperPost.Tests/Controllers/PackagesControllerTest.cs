@@ -105,11 +105,11 @@ namespace HyperPost.Tests.Controllers
             Assert.NotNull(postPackageContent);
 
             Assert.Equal((int)PackageStatusesEnum.Created, postPackageContent.StatusId);
-            Assert.Equal(package.CategoryId, postPackageContent.CategoryId);
-            Assert.Equal(package.SenderUserId, postPackageContent.SenderUserId);
-            Assert.Equal(package.ReceiverUserId, postPackageContent.ReceiverUserId);
-            Assert.Equal(package.SenderDepartmentId, postPackageContent.SenderDepartmentId);
-            Assert.Equal(package.ReceiverDepartmentId, postPackageContent.ReceiverDepartmentId);
+            Assert.Equal(package.CategoryId, postPackageContent.Category.Id);
+            Assert.Equal(package.SenderUserId, postPackageContent.SenderUser.Id);
+            Assert.Equal(package.ReceiverUserId, postPackageContent.ReceiverUser.Id);
+            Assert.Equal(package.SenderDepartmentId, postPackageContent.SenderDepartment.Id);
+            Assert.Equal(package.ReceiverDepartmentId, postPackageContent.ReceiverDepartment.Id);
             Assert.Equal(package.Weight, postPackageContent.Weight);
             Assert.Equal(package.PackagePrice, postPackageContent.PackagePrice);
             Assert.Equal(package.DeliveryPrice, postPackageContent.DeliveryPrice);
@@ -218,11 +218,11 @@ namespace HyperPost.Tests.Controllers
             Assert.NotNull(postPackageContent);
 
             Assert.Equal((int)PackageStatusesEnum.Created, postPackageContent.StatusId);
-            Assert.Equal(package.CategoryId, postPackageContent.CategoryId);
-            Assert.Equal(package.SenderUserId, postPackageContent.SenderUserId);
-            Assert.Equal(package.ReceiverUserId, postPackageContent.ReceiverUserId);
-            Assert.Equal(package.SenderDepartmentId, postPackageContent.SenderDepartmentId);
-            Assert.Equal(package.ReceiverDepartmentId, postPackageContent.ReceiverDepartmentId);
+            Assert.Equal(package.CategoryId, postPackageContent.Category.Id);
+            Assert.Equal(package.SenderUserId, postPackageContent.SenderUser.Id);
+            Assert.Equal(package.ReceiverUserId, postPackageContent.ReceiverUser.Id);
+            Assert.Equal(package.SenderDepartmentId, postPackageContent.SenderDepartment.Id);
+            Assert.Equal(package.ReceiverDepartmentId, postPackageContent.ReceiverDepartment.Id);
             Assert.Equal(package.Weight, postPackageContent.Weight);
             Assert.Equal(package.PackagePrice, postPackageContent.PackagePrice);
             Assert.Equal(package.DeliveryPrice, postPackageContent.DeliveryPrice);
@@ -1661,16 +1661,16 @@ namespace HyperPost.Tests.Controllers
                 await getPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
             Assert.NotNull(getPackageContent);
             Assert.Equal(postPackageContent.Id, getPackageContent.Id);
-            Assert.Equal(postPackageContent.CategoryId, getPackageContent.CategoryId);
-            Assert.Equal(postPackageContent.SenderUserId, getPackageContent.SenderUserId);
-            Assert.Equal(postPackageContent.ReceiverUserId, getPackageContent.ReceiverUserId);
+            Assert.Equal(postPackageContent.Category.Id, getPackageContent.Category.Id);
+            Assert.Equal(postPackageContent.SenderUser.Id, getPackageContent.SenderUser.Id);
+            Assert.Equal(postPackageContent.ReceiverUser.Id, getPackageContent.ReceiverUser.Id);
             Assert.Equal(
-                postPackageContent.SenderDepartmentId,
-                getPackageContent.SenderDepartmentId
+                postPackageContent.SenderDepartment.Id,
+                getPackageContent.SenderDepartment.Id
             );
             Assert.Equal(
-                postPackageContent.ReceiverDepartmentId,
-                getPackageContent.ReceiverDepartmentId
+                postPackageContent.ReceiverDepartment.Id,
+                getPackageContent.ReceiverDepartment.Id
             );
             Assert.Equal(postPackageContent.Weight, getPackageContent.Weight);
             Assert.Equal(postPackageContent.PackagePrice, getPackageContent.PackagePrice);
@@ -1799,16 +1799,16 @@ namespace HyperPost.Tests.Controllers
                 await getPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
             Assert.NotNull(getPackageContent);
             Assert.Equal(postPackageContent.Id, getPackageContent.Id);
-            Assert.Equal(postPackageContent.CategoryId, getPackageContent.CategoryId);
-            Assert.Equal(postPackageContent.SenderUserId, getPackageContent.SenderUserId);
-            Assert.Equal(postPackageContent.ReceiverUserId, getPackageContent.ReceiverUserId);
+            Assert.Equal(postPackageContent.Category.Id, getPackageContent.Category.Id);
+            Assert.Equal(postPackageContent.SenderUser.Id, getPackageContent.SenderUser.Id);
+            Assert.Equal(postPackageContent.ReceiverUser.Id, getPackageContent.ReceiverUser.Id);
             Assert.Equal(
-                postPackageContent.SenderDepartmentId,
-                getPackageContent.SenderDepartmentId
+                postPackageContent.SenderDepartment.Id,
+                getPackageContent.SenderDepartment.Id
             );
             Assert.Equal(
-                postPackageContent.ReceiverDepartmentId,
-                getPackageContent.ReceiverDepartmentId
+                postPackageContent.ReceiverDepartment.Id,
+                getPackageContent.ReceiverDepartment.Id
             );
             Assert.Equal(postPackageContent.Weight, getPackageContent.Weight);
             Assert.Equal(postPackageContent.PackagePrice, getPackageContent.PackagePrice);
@@ -1935,16 +1935,16 @@ namespace HyperPost.Tests.Controllers
                 await getPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
             Assert.NotNull(getPackageContent);
             Assert.Equal(postPackageContent.Id, getPackageContent.Id);
-            Assert.Equal(postPackageContent.CategoryId, getPackageContent.CategoryId);
-            Assert.Equal(postPackageContent.SenderUserId, getPackageContent.SenderUserId);
-            Assert.Equal(postPackageContent.ReceiverUserId, getPackageContent.ReceiverUserId);
+            Assert.Equal(postPackageContent.Category.Id, getPackageContent.Category.Id);
+            Assert.Equal(postPackageContent.SenderUser.Id, getPackageContent.SenderUser.Id);
+            Assert.Equal(postPackageContent.ReceiverUser.Id, getPackageContent.ReceiverUser.Id);
             Assert.Equal(
-                postPackageContent.SenderDepartmentId,
-                getPackageContent.SenderDepartmentId
+                postPackageContent.SenderDepartment.Id,
+                getPackageContent.SenderDepartment.Id
             );
             Assert.Equal(
-                postPackageContent.ReceiverDepartmentId,
-                getPackageContent.ReceiverDepartmentId
+                postPackageContent.ReceiverDepartment.Id,
+                getPackageContent.ReceiverDepartment.Id
             );
             Assert.Equal(postPackageContent.Weight, getPackageContent.Weight);
             Assert.Equal(postPackageContent.PackagePrice, getPackageContent.PackagePrice);
@@ -2107,21 +2107,21 @@ namespace HyperPost.Tests.Controllers
             Assert.NotNull(putPackageContent);
             // assert that valid response is returned
             Assert.Equal(postPackageContent.Id, putPackageContent.Id);
-            Assert.Equal(postPackageContent.SenderUserId, putPackageContent.SenderUserId);
-            Assert.Equal(postPackageContent.ReceiverUserId, putPackageContent.ReceiverUserId);
+            Assert.Equal(postPackageContent.SenderUser.Id, putPackageContent.SenderUser.Id);
+            Assert.Equal(postPackageContent.ReceiverUser.Id, putPackageContent.ReceiverUser.Id);
             Assert.Equal(
-                postPackageContent.SenderDepartmentId,
-                putPackageContent.SenderDepartmentId
+                postPackageContent.SenderDepartment.Id,
+                putPackageContent.SenderDepartment.Id
             );
             Assert.Equal(
-                postPackageContent.ReceiverDepartmentId,
-                putPackageContent.ReceiverDepartmentId
+                postPackageContent.ReceiverDepartment.Id,
+                putPackageContent.ReceiverDepartment.Id
             );
             Assert.Equal(postPackageContent.Weight, putPackageContent.Weight);
             Assert.Equal(postPackageContent.PackagePrice, putPackageContent.PackagePrice);
             Assert.Equal(postPackageContent.DeliveryPrice, putPackageContent.DeliveryPrice);
 
-            Assert.Equal(putPackage.CategoryId, putPackageContent.CategoryId);
+            Assert.Equal(putPackage.CategoryId, putPackageContent.Category.Id);
             Assert.Equal(putPackage.Description, putPackageContent.Description);
             Assert.Equal((int)PackageStatusesEnum.Modified, putPackageContent.StatusId);
 
@@ -2250,21 +2250,21 @@ namespace HyperPost.Tests.Controllers
                 await putPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
             Assert.NotNull(putPackageContent);
             Assert.Equal(postPackageContent.Id, putPackageContent.Id);
-            Assert.Equal(postPackageContent.SenderUserId, putPackageContent.SenderUserId);
-            Assert.Equal(postPackageContent.ReceiverUserId, putPackageContent.ReceiverUserId);
+            Assert.Equal(postPackageContent.SenderUser.Id, putPackageContent.SenderUser.Id);
+            Assert.Equal(postPackageContent.ReceiverUser.Id, putPackageContent.ReceiverUser.Id);
             Assert.Equal(
-                postPackageContent.SenderDepartmentId,
-                putPackageContent.SenderDepartmentId
+                postPackageContent.SenderDepartment.Id,
+                putPackageContent.SenderDepartment.Id
             );
             Assert.Equal(
-                postPackageContent.ReceiverDepartmentId,
-                putPackageContent.ReceiverDepartmentId
+                postPackageContent.ReceiverDepartment.Id,
+                putPackageContent.ReceiverDepartment.Id
             );
             Assert.Equal(postPackageContent.Weight, putPackageContent.Weight);
             Assert.Equal(postPackageContent.PackagePrice, putPackageContent.PackagePrice);
             Assert.Equal(postPackageContent.DeliveryPrice, putPackageContent.DeliveryPrice);
 
-            Assert.Equal(putPackage.CategoryId, putPackageContent.CategoryId);
+            Assert.Equal(putPackage.CategoryId, putPackageContent.Category.Id);
             Assert.Equal(putPackage.Description, putPackageContent.Description);
             Assert.Equal((int)PackageStatusesEnum.Modified, putPackageContent.StatusId);
 
@@ -2584,16 +2584,16 @@ namespace HyperPost.Tests.Controllers
                 await patchPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
             Assert.NotNull(patchPackageContent);
             Assert.Equal(postPackageContent.Id, patchPackageContent.Id);
-            Assert.Equal(postPackageContent.CategoryId, patchPackageContent.CategoryId);
-            Assert.Equal(postPackageContent.SenderUserId, patchPackageContent.SenderUserId);
-            Assert.Equal(postPackageContent.ReceiverUserId, patchPackageContent.ReceiverUserId);
+            Assert.Equal(postPackageContent.Category.Id, patchPackageContent.Category.Id);
+            Assert.Equal(postPackageContent.SenderUser.Id, patchPackageContent.SenderUser.Id);
+            Assert.Equal(postPackageContent.ReceiverUser.Id, patchPackageContent.ReceiverUser.Id);
             Assert.Equal(
-                postPackageContent.SenderDepartmentId,
-                patchPackageContent.SenderDepartmentId
+                postPackageContent.SenderDepartment.Id,
+                patchPackageContent.SenderDepartment.Id
             );
             Assert.Equal(
-                postPackageContent.ReceiverDepartmentId,
-                patchPackageContent.ReceiverDepartmentId
+                postPackageContent.ReceiverDepartment.Id,
+                patchPackageContent.ReceiverDepartment.Id
             );
             Assert.Equal(postPackageContent.Weight, patchPackageContent.Weight);
             Assert.Equal(postPackageContent.PackagePrice, patchPackageContent.PackagePrice);
@@ -2726,16 +2726,16 @@ namespace HyperPost.Tests.Controllers
                 await patchPackageResponse.Content.ReadFromJsonAsync<PackageResponse>();
             Assert.NotNull(patchPackageContent);
             Assert.Equal(postPackageContent.Id, patchPackageContent.Id);
-            Assert.Equal(postPackageContent.CategoryId, patchPackageContent.CategoryId);
-            Assert.Equal(postPackageContent.SenderUserId, patchPackageContent.SenderUserId);
-            Assert.Equal(postPackageContent.ReceiverUserId, patchPackageContent.ReceiverUserId);
+            Assert.Equal(postPackageContent.Category.Id, patchPackageContent.Category.Id);
+            Assert.Equal(postPackageContent.SenderUser.Id, patchPackageContent.SenderUser.Id);
+            Assert.Equal(postPackageContent.ReceiverUser.Id, patchPackageContent.ReceiverUser.Id);
             Assert.Equal(
-                postPackageContent.SenderDepartmentId,
-                patchPackageContent.SenderDepartmentId
+                postPackageContent.SenderDepartment.Id,
+                patchPackageContent.SenderDepartment.Id
             );
             Assert.Equal(
-                postPackageContent.ReceiverDepartmentId,
-                patchPackageContent.ReceiverDepartmentId
+                postPackageContent.ReceiverDepartment.Id,
+                patchPackageContent.ReceiverDepartment.Id
             );
             Assert.Equal(postPackageContent.Weight, patchPackageContent.Weight);
             Assert.Equal(postPackageContent.PackagePrice, patchPackageContent.PackagePrice);
@@ -3262,7 +3262,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(1, getPackagesContent.TotalPages);
             Assert.Single(getPackagesContent.List);
             Assert.True(
-                getPackagesContent.List.All(p => p.ReceiverUserId == existingReceiverUser.Id)
+                getPackagesContent.List.All(p => p.ReceiverUser.Id == existingReceiverUser.Id)
             );
             // get packages ↑
 
@@ -3427,7 +3427,7 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(1, getPackagesContent.TotalCount);
             Assert.Equal(1, getPackagesContent.TotalPages);
             Assert.Single(getPackagesContent.List);
-            Assert.True(getPackagesContent.List.All(p => p.SenderUserId == existingSenderUser.Id));
+            Assert.True(getPackagesContent.List.All(p => p.SenderUser.Id == existingSenderUser.Id));
             // get packages ↑
 
             // cleanup ↓

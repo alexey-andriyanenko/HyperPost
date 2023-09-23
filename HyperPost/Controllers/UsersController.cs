@@ -99,6 +99,8 @@ namespace HyperPost.Controllers
                 return Forbid();
             }
 
+            Console.WriteLine(request);
+
             var validationResult = await _createUserRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
@@ -127,7 +129,7 @@ namespace HyperPost.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return Ok(_GetUserResponse(user));
+            return Ok(user.ToResponse());
         }
 
         [Authorize(Policy = "admin, manager")]
@@ -165,7 +167,7 @@ namespace HyperPost.Controllers
             {
                 TotalCount = totalCount,
                 TotalPages = totalPages,
-                List = models.Select(_GetUserResponse).ToList()
+                List = models.Select(ps => ps.ToResponse()).ToList()
             };
 
             return Ok(response);
@@ -179,7 +181,7 @@ namespace HyperPost.Controllers
             if (user == null)
                 return NotFound($"User with id={id} not found");
 
-            return Ok(_GetUserResponse(user));
+            return Ok(user.ToResponse());
         }
 
         [Authorize]
@@ -192,7 +194,7 @@ namespace HyperPost.Controllers
             if (user == null)
                 return NotFound($"User with id={userId} not found");
 
-            return Ok(_GetUserResponse(user));
+            return Ok(user.ToResponse());
         }
 
         [Authorize(Policy = "admin, manager")]
@@ -256,7 +258,7 @@ namespace HyperPost.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return Ok(_GetUserResponse(user));
+            return Ok(user.ToResponse());
         }
 
         [Authorize]
@@ -297,7 +299,7 @@ namespace HyperPost.Controllers
                 return BadRequest(ex.Message);
             }
 
-            return Ok(_GetUserResponse(user));
+            return Ok(user.ToResponse());
         }
 
         [Authorize(Policy = "admin, manager")]
@@ -322,19 +324,6 @@ namespace HyperPost.Controllers
             await _dbContext.SaveChangesAsync();
 
             return NoContent();
-        }
-
-        private UserResponse _GetUserResponse(UserModel model)
-        {
-            return new UserResponse
-            {
-                Id = model.Id,
-                RoleId = model.RoleId,
-                FirstName = model.FirstName,
-                LastName = model.LastName,
-                Email = model.Email,
-                PhoneNumber = model.PhoneNumber,
-            };
         }
 
         private async Task<UserLoginResponse> _GetUserLoginResponse(UserModel model)
