@@ -31,13 +31,15 @@ namespace HyperPost.Controllers
         private readonly IValidator<UpdateUserRequest> _updateUserRequestValidator;
         private readonly IValidator<UpdateMeRequest> _updateMeRequestValidator;
         private readonly IValidator<PaginationRequest> _paginationRequestValidator;
+        private readonly IValidator<CheckIfUserExistsRequest> _checkIfUserExistsRequestValidator;
 
         public UsersController(
             HyperPostDbContext dbContext,
             IValidator<CreateUserRequest> createUserRequestValidator,
             IValidator<UpdateUserRequest> updateUserRequestValidator,
             IValidator<UpdateMeRequest> updateMeRequestValidator,
-            IValidator<PaginationRequest> paginationRequestValidator
+            IValidator<PaginationRequest> paginationRequestValidator,
+            IValidator<CheckIfUserExistsRequest> checkIfUserExistsRequestValidator
         )
         {
             _dbContext = dbContext;
@@ -45,6 +47,7 @@ namespace HyperPost.Controllers
             _updateUserRequestValidator = updateUserRequestValidator;
             _updateMeRequestValidator = updateMeRequestValidator;
             _paginationRequestValidator = paginationRequestValidator;
+            _checkIfUserExistsRequestValidator = checkIfUserExistsRequestValidator;
         }
 
         [HttpPost("login/email")]
@@ -178,6 +181,40 @@ namespace HyperPost.Controllers
             var user = await _dbContext.Users.FindAsync(id);
             if (user == null)
                 return NotFound($"User with id={id} not found");
+
+            return Ok(user.ToResponse());
+        }
+
+        [Authorize(Policy = "admin, manager")]
+        [HttpGet("check/exists")]
+        public async Task<ActionResult<UserResponse>> CheckIfUserExists(
+            [FromQuery] CheckIfUserExistsRequest request
+        )
+        {
+            var validationResult = await _checkIfUserExistsRequestValidator.ValidateAsync(request);
+            if (!validationResult.IsValid)
+            {
+                var error = new AppError("request-validation-fail");
+                error.Errors = validationResult.ToDictionary();
+
+                return BadRequest(error);
+            }
+
+            UserModel? user = null;
+
+            if (request.Email != null)
+            {
+                user = await _dbContext.Users.FirstOrDefaultAsync(u => u.Email == request.Email);
+            }
+            else
+            {
+                user = await _dbContext.Users.FirstOrDefaultAsync(
+                    u => u.PhoneNumber == request.Phone
+                );
+            }
+
+            if (user == null)
+                return NotFound();
 
             return Ok(user.ToResponse());
         }

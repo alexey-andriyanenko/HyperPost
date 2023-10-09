@@ -10,6 +10,7 @@ using HyperPost.DB;
 using HyperPost.Migrations;
 using HyperPost.DTO.Pagination;
 using Microsoft.AspNetCore.WebUtilities;
+using System;
 
 namespace HyperPost.Tests.Controllers
 {
@@ -2673,6 +2674,146 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(clientUser.FirstName, getContent.FirstName);
             Assert.Equal(clientUser.LastName, getContent.LastName);
             Assert.Equal(clientUser.RoleId, getContent.RoleId);
+        }
+
+        [Fact]
+        public async Task GET_AnonymousChecksIfUserExists_ReturnsUnauthorized()
+        {
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.RequestUri = new Uri(
+                "http://localhost:8000/users/check/exists?email=example@email.com"
+            );
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.Unauthorized, getResponse.StatusCode);
+        }
+
+        [Fact]
+        public async Task GET_ClientChecksIfUserExists_ReturnsForbidden()
+        {
+            var clientLogin = await _client.LoginViaEmailAs(UserRolesEnum.Client);
+
+            var getMessage = new HttpRequestMessage();
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                clientLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri(
+                "http://localhost:8000/users/check/exists?email=example@email.com"
+            );
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.Forbidden, getResponse.StatusCode);
+        }
+
+        public async Task GET_ChecksIfUserExists_ReturnsNotFound()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri(
+                "http://localhost:8000/users/check/exists?email=notexistingemail@example"
+            );
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.NotFound, getResponse.StatusCode);
+        }
+
+        public async Task GET_ChecksIfUserExistsByEmail_ReturnsOk()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/users/check/exists",
+                new Dictionary<string, string> { { "email", user.Email } }
+            );
+
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var getContent = await getResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(getContent);
+            Assert.Equal(user.Id, getContent.Id);
+            Assert.Equal(user.Email, getContent.Email);
+            Assert.Equal(user.PhoneNumber, getContent.PhoneNumber);
+            Assert.Equal(user.FirstName, getContent.FirstName);
+            Assert.Equal(user.LastName, getContent.LastName);
+            Assert.Equal(user.RoleId, getContent.RoleId);
+        }
+
+        public async Task GET_ChecksIfUserExistByPhone_ReturnsOk()
+        {
+            var adminLogin = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var user = UsersHelper.GetExistingUserModel(UserRolesEnum.Client);
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/users/check/exists",
+                new Dictionary<string, string> { { "phone", user.PhoneNumber } }
+            );
+
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                adminLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri(url);
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var getContent = await getResponse.Content.ReadFromJsonAsync<UserResponse>();
+            Assert.NotNull(getContent);
+            Assert.Equal(user.Id, getContent.Id);
+            Assert.Equal(user.Email, getContent.Email);
+            Assert.Equal(user.PhoneNumber, getContent.PhoneNumber);
+            Assert.Equal(user.FirstName, getContent.FirstName);
+            Assert.Equal(user.LastName, getContent.LastName);
+            Assert.Equal(user.RoleId, getContent.RoleId);
+        }
+
+        public async Task GET_ChecksIfUserExistsWithInvalidQuery_ReturnsBadRequest()
+        {
+            var managerLogin = await _client.LoginViaEmailAs(UserRolesEnum.Manager);
+
+            var getMessage = new HttpRequestMessage();
+
+            getMessage.Method = HttpMethod.Get;
+            getMessage.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                managerLogin.AccessToken
+            );
+            getMessage.RequestUri = new Uri("http://localhost:8000/users/check/exists");
+
+            var getResponse = await _client.SendAsync(getMessage);
+            Assert.Equal(HttpStatusCode.OK, getResponse.StatusCode);
+
+            var getContent = await getResponse.Content.ReadFromJsonAsync<AppError>();
+            Assert.NotNull(getContent);
+
+            Assert.Equal(getContent.Type, "request-validation-failed");
+            Assert.Null(getContent.Message);
+            Assert.Contains(
+                "Either email or phone number must be provided",
+                getContent.Errors["Email"]
+            );
         }
     }
 }
