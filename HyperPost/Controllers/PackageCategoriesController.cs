@@ -13,6 +13,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using System;
 using HyperPost.Shared;
+using System.Collections.Generic;
 
 namespace HyperPost.Controllers
 {
@@ -22,19 +23,19 @@ namespace HyperPost.Controllers
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<CreatePackageCategoryRequest> _categoryRequestValidator;
         private readonly IValidator<UpdatePackageCategoryRequest> _updateCategoryRequestValidator;
-        private readonly IValidator<PaginationRequest> _paginationRequestValidator;
+        private readonly IValidator<PackageCategoryFiltersRequest> _packageCategoryFiltersRequestValidator;
 
         public PackageCategoriesController(
             HyperPostDbContext dbContext,
             IValidator<CreatePackageCategoryRequest> categoryRequestValidator,
             IValidator<UpdatePackageCategoryRequest> updateCategoryRequestValidator,
-            IValidator<PaginationRequest> paginationRequestValidator
+            IValidator<PackageCategoryFiltersRequest> packageCategoryFiltersValidator
         )
         {
             _dbContext = dbContext;
             _categoryRequestValidator = categoryRequestValidator;
             _updateCategoryRequestValidator = updateCategoryRequestValidator;
-            _paginationRequestValidator = paginationRequestValidator;
+            _packageCategoryFiltersRequestValidator = packageCategoryFiltersValidator;
         }
 
         [Authorize]
@@ -51,22 +52,37 @@ namespace HyperPost.Controllers
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<PaginationResponse<PackageCategoryResponse>>> GetCategories(
-            [FromRoute] PaginationRequest paginationRequest
+            [FromQuery] PackageCategoryFiltersRequest filtersRequest
         )
         {
-            var validationResult = await _paginationRequestValidator.ValidateAsync(
-                paginationRequest
+            var validationResult = await _packageCategoryFiltersRequestValidator.ValidateAsync(
+                filtersRequest
             );
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
 
             var query = _dbContext.PackageCategoties.AsQueryable();
             var totalCount = await query.CountAsync();
-            var totalPages = (int)Math.Ceiling((double)totalCount / paginationRequest.Limit);
-            var list = await query
-                .Skip((paginationRequest.Page - 1) * paginationRequest.Limit)
-                .Take(paginationRequest.Limit)
-                .ToListAsync();
+            var totalPages = (int)Math.Ceiling((double)totalCount / filtersRequest.Limit);
+
+            List<PackageCategoryModel> list;
+
+            if (filtersRequest.Name != null)
+            {
+                list = await query
+                    .Where(pc => pc.Name.Contains(filtersRequest.Name))
+                    .Skip(filtersRequest.Limit * (filtersRequest.Page - 1))
+                    .Take(filtersRequest.Limit)
+                    .ToListAsync();
+            }
+            else
+            {
+                list = await query
+                    .Skip(filtersRequest.Limit * (filtersRequest.Page - 1))
+                    .Take(filtersRequest.Limit)
+                    .ToListAsync();
+            }
+
             var response = new PaginationResponse<PackageCategoryResponse>
             {
                 TotalCount = totalCount,

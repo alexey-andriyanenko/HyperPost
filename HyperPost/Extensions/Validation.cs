@@ -34,6 +34,11 @@ namespace HyperPost.Extensions
             services.AddScoped<IValidator<CreatePackageRequest>, CreatePackageRequestValidator>();
             services.AddScoped<IValidator<UpdatePackageRequest>, UpdatePackageRequestValidator>();
 
+            services.AddScoped<
+                IValidator<PackageCategoryFiltersRequest>,
+                PackageCategoryFiltersRequestValidator
+            >();
+
             services.AddScoped<IValidator<PaginationRequest>, PaginationRequestValidator>();
         }
     }

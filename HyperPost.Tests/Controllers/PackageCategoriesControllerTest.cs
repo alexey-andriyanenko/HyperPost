@@ -703,6 +703,48 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
         }
 
+        public async Task GET_SearchesByName_ReturnsOk()
+        {
+            var login = await _client.LoginViaEmailAs(UserRolesEnum.Admin);
+            var existingCategory = PackageCategoriesHelper.GetPackageCategoryModel(
+                PackageCategoriesEnum.Books
+            );
+
+            var message = new HttpRequestMessage();
+            PackageCategoryFiltersRequest query = new PackageCategoryFiltersRequest
+            {
+                Name = existingCategory.Name,
+                Limit = 10,
+                Page = 1
+            };
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/package/categories",
+                new Dictionary<string, string>
+                {
+                    { "name", query.Name },
+                    { "limit", query.Limit.ToString() },
+                    { "page", query.Page.ToString() }
+                }
+            );
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                login.AccessToken
+            );
+            message.RequestUri = new Uri(url);
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+            var content = await response.Content.ReadFromJsonAsync<
+                PaginationResponse<PackageCategoryResponse>
+            >();
+
+            Assert.NotNull(content);
+            Assert.NotEmpty(content.List);
+            Assert.Contains(content.List, category => category.Id == existingCategory.Id);
+        }
+
         [Fact]
         public async Task DELETE_AdminDeletesCategory_ReturnsNoContent()
         {
