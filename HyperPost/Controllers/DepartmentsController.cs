@@ -11,6 +11,7 @@ using Microsoft.EntityFrameworkCore;
 using System.Linq;
 using Azure;
 using HyperPost.Shared;
+using System.Collections.Generic;
 
 namespace HyperPost.Controllers
 {
@@ -20,19 +21,19 @@ namespace HyperPost.Controllers
         private readonly HyperPostDbContext _dbContext;
         private readonly IValidator<CreateDepartmentRequest> _createDepartmentRequestValidator;
         private readonly IValidator<UpdateDepartmentRequest> _updateDepartmentRequestValidator;
-        private readonly IValidator<PaginationRequest> _paginationRequestValidator;
+        private readonly IValidator<DepartmentsFiltersRequest> _departmentsFiltersRequestValidator;
 
         public DepartmentsController(
             HyperPostDbContext dbContext,
             IValidator<CreateDepartmentRequest> createDepartmentRequestValidator,
             IValidator<UpdateDepartmentRequest> updateDepartmentRequestValidator,
-            IValidator<PaginationRequest> paginationRequestValidator
+            IValidator<DepartmentsFiltersRequest> departmentsFiltersRequestValidator
         )
         {
             _dbContext = dbContext;
             _createDepartmentRequestValidator = createDepartmentRequestValidator;
             _updateDepartmentRequestValidator = updateDepartmentRequestValidator;
-            _paginationRequestValidator = paginationRequestValidator;
+            _departmentsFiltersRequestValidator = departmentsFiltersRequestValidator;
         }
 
         [Authorize]
@@ -49,22 +50,37 @@ namespace HyperPost.Controllers
         [Authorize]
         [HttpGet]
         public async Task<ActionResult<PaginationResponse<DepartmentResponse>>> GetDepartments(
-            [FromQuery] PaginationRequest paginationRequest
+            [FromQuery] DepartmentsFiltersRequest departmentsFiltersRequest
         )
         {
-            var validationResult = await _paginationRequestValidator.ValidateAsync(
-                paginationRequest
+            var validationResult = await _departmentsFiltersRequestValidator.ValidateAsync(
+                departmentsFiltersRequest
             );
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
 
             var query = _dbContext.Departments.AsQueryable();
             var totalCount = await query.CountAsync();
-            var totalPages = (int)System.Math.Ceiling((double)totalCount / paginationRequest.Limit);
-            var list = await query
-                .Skip((paginationRequest.Page - 1) * paginationRequest.Limit)
-                .Take(paginationRequest.Limit)
-                .ToListAsync();
+            var totalPages = (int)
+                System.Math.Ceiling((double)totalCount / departmentsFiltersRequest.Limit);
+
+            List<DepartmentModel> list;
+
+            if (departmentsFiltersRequest.Address != null)
+            {
+                list = await query
+                    .Where(x => x.FullAddress.Contains(departmentsFiltersRequest.Address))
+                    .Skip((departmentsFiltersRequest.Page - 1) * departmentsFiltersRequest.Limit)
+                    .Take(departmentsFiltersRequest.Limit)
+                    .ToListAsync();
+            }
+            else
+            {
+                list = await query
+                    .Skip((departmentsFiltersRequest.Page - 1) * departmentsFiltersRequest.Limit)
+                    .Take(departmentsFiltersRequest.Limit)
+                    .ToListAsync();
+            }
 
             var response = new PaginationResponse<DepartmentResponse>
             {

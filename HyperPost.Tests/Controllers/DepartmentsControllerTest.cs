@@ -1085,5 +1085,51 @@ namespace HyperPost.Tests.Controllers
             Assert.Equal(1, getContent.TotalPages);
             Assert.Equal(10, getContent.List.Count);
         }
+
+        [Fact]
+        public async Task GET_SearchesDepartmentsByAddress_ReturnsOk()
+        {
+            var existingDepartment = DepartmentsHelper.GetDepartmentModel(1);
+            var query = new DepartmentsFiltersRequest
+            {
+                Address = existingDepartment.FullAddress,
+                Page = 1,
+                Limit = 10
+            };
+
+            var url = QueryHelpers.AddQueryString(
+                "http://localhost:8000/departments",
+                new Dictionary<string, string?>
+                {
+                    { "address", query.Address },
+                    { "page", query.Page.ToString() },
+                    { "limit", query.Limit.ToString() }
+                }
+            );
+
+            var message = new HttpRequestMessage();
+
+            message.Method = HttpMethod.Get;
+            message.Headers.Authorization = new AuthenticationHeaderValue(
+                JwtBearerDefaults.AuthenticationScheme,
+                await _client
+                    .LoginViaEmailAs(UserRolesEnum.Admin)
+                    .ContinueWith(task => task.Result.AccessToken)
+            );
+            message.RequestUri = new Uri(url);
+
+            var response = await _client.SendAsync(message);
+            Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+            var content = await response.Content.ReadFromJsonAsync<
+                PaginationResponse<DepartmentResponse>
+            >();
+
+            Assert.NotNull(content);
+            Assert.Contains(
+                content.List,
+                department => department.FullAddress == existingDepartment.FullAddress
+            );
+        }
     }
 }

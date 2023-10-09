@@ -15,6 +15,7 @@ namespace HyperPost.Extensions
             services.AddScoped<IValidator<CreateUserRequest>, CreateUserRequestValidator>();
             services.AddScoped<IValidator<UpdateUserRequest>, UpdateUserRequestValidator>();
             services.AddScoped<IValidator<UpdateMeRequest>, UpdateMeRequestValidator>();
+
             services.AddScoped<
                 IValidator<CreateDepartmentRequest>,
                 CreateDepartmentRequestValidator
@@ -24,6 +25,11 @@ namespace HyperPost.Extensions
                 UpdateDepartmentRequestValidator
             >();
             services.AddScoped<
+                IValidator<DepartmentsFiltersRequest>,
+                DepartmentsFiltersRequestValidator
+            >();
+
+            services.AddScoped<
                 IValidator<CreatePackageCategoryRequest>,
                 CreatePackageCategoryRequestValidator
             >();
@@ -31,13 +37,13 @@ namespace HyperPost.Extensions
                 IValidator<UpdatePackageCategoryRequest>,
                 UpdatePackageCategoryRequestValidator
             >();
-            services.AddScoped<IValidator<CreatePackageRequest>, CreatePackageRequestValidator>();
-            services.AddScoped<IValidator<UpdatePackageRequest>, UpdatePackageRequestValidator>();
-
             services.AddScoped<
                 IValidator<PackageCategoryFiltersRequest>,
                 PackageCategoryFiltersRequestValidator
             >();
+
+            services.AddScoped<IValidator<CreatePackageRequest>, CreatePackageRequestValidator>();
+            services.AddScoped<IValidator<UpdatePackageRequest>, UpdatePackageRequestValidator>();
 
             services.AddScoped<IValidator<PaginationRequest>, PaginationRequestValidator>();
         }
