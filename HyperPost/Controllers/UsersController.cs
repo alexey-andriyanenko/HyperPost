@@ -99,8 +99,6 @@ namespace HyperPost.Controllers
                 return Forbid();
             }
 
-            Console.WriteLine(request);
-
             var validationResult = await _createUserRequestValidator.ValidateAsync(request);
             if (!validationResult.IsValid)
                 return BadRequest(validationResult.Errors);
